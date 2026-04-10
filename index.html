@@ -1,0 +1,2590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSVTU Maths II — Units I & II Deep Dive</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=IBM+Plex+Mono:wght@400;600&family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0d0d12;
+  --surface: #14141e;
+  --surface2: #1c1c2a;
+  --surface3: #222232;
+  --border: #2e2e45;
+  --border2: #3a3a55;
+  --gold: #f5c842;
+  --gold-dim: rgba(245,200,66,0.12);
+  --gold-border: rgba(245,200,66,0.25);
+  --coral: #ff7055;
+  --coral-dim: rgba(255,112,85,0.1);
+  --mint: #3fffa2;
+  --mint-dim: rgba(63,255,162,0.08);
+  --blue: #6eb5ff;
+  --blue-dim: rgba(110,181,255,0.1);
+  --lavender: #b899ff;
+  --lav-dim: rgba(184,153,255,0.1);
+  --text: #e5e5f0;
+  --text2: #a0a0b8;
+  --text3: #6a6a85;
+  --red: #ff5e7e;
+}
+
+*{box-sizing:border-box;margin:0;padding:0;}
+
+html{scroll-behavior:smooth;}
+
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Nunito',sans-serif;
+  font-size:15px;
+  line-height:1.75;
+}
+
+/* ─── SIDEBAR ─── */
+.layout{display:flex;min-height:100vh;}
+
+.sidebar{
+  width:260px;
+  flex-shrink:0;
+  background:var(--surface);
+  border-right:1px solid var(--border);
+  position:sticky;
+  top:0;
+  height:100vh;
+  overflow-y:auto;
+  padding:0;
+  scrollbar-width:thin;
+  scrollbar-color:var(--border) transparent;
+}
+
+.sidebar-logo{
+  padding:20px 20px 14px;
+  border-bottom:1px solid var(--border);
+}
+
+.sidebar-logo .logo-tag{
+  font-size:9px;
+  font-family:'IBM Plex Mono',monospace;
+  color:var(--gold);
+  letter-spacing:2px;
+  text-transform:uppercase;
+  margin-bottom:4px;
+}
+
+.sidebar-logo h2{
+  font-family:'Playfair Display',serif;
+  font-size:17px;
+  color:var(--text);
+  line-height:1.3;
+}
+
+.sidebar-logo h2 span{color:var(--gold);}
+
+.nav-section-label{
+  font-size:9px;
+  font-family:'IBM Plex Mono',monospace;
+  letter-spacing:2px;
+  color:var(--text3);
+  text-transform:uppercase;
+  padding:16px 20px 6px;
+}
+
+.nav-item{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:9px 20px;
+  cursor:pointer;
+  transition:all 0.18s;
+  border-left:3px solid transparent;
+  text-decoration:none;
+  color:var(--text2);
+  font-size:13px;
+  font-weight:600;
+}
+
+.nav-item:hover{
+  background:var(--surface2);
+  color:var(--text);
+  border-left-color:var(--border2);
+}
+
+.nav-item.active{
+  background:var(--gold-dim);
+  color:var(--gold);
+  border-left-color:var(--gold);
+}
+
+.nav-item .icon{font-size:14px;width:18px;text-align:center;flex-shrink:0;}
+.nav-item .badge{
+  margin-left:auto;
+  font-size:8px;
+  font-family:'IBM Plex Mono',monospace;
+  padding:2px 6px;
+  border-radius:10px;
+  background:var(--coral-dim);
+  color:var(--coral);
+  border:1px solid rgba(255,112,85,0.25);
+}
+
+/* ─── MAIN ─── */
+.main{
+  flex:1;
+  min-width:0;
+  padding:0;
+}
+
+/* ─── PAGE HERO ─── */
+.hero{
+  background:linear-gradient(135deg,#0d0d12 0%,#15151f 60%,#1a1020 100%);
+  border-bottom:1px solid var(--border);
+  padding:48px 48px 40px;
+  position:relative;
+  overflow:hidden;
+}
+
+.hero::before{
+  content:'';
+  position:absolute;
+  top:-80px;right:-80px;
+  width:400px;height:400px;
+  background:radial-gradient(circle,rgba(245,200,66,0.07) 0%,transparent 65%);
+  pointer-events:none;
+}
+
+.hero::after{
+  content:'MATHS II';
+  position:absolute;
+  bottom:-20px;right:30px;
+  font-family:'Playfair Display',serif;
+  font-size:120px;
+  font-weight:900;
+  color:rgba(245,200,66,0.03);
+  pointer-events:none;
+  user-select:none;
+}
+
+.hero-chip{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  background:var(--gold-dim);
+  border:1px solid var(--gold-border);
+  border-radius:20px;
+  padding:4px 14px;
+  font-size:11px;
+  font-family:'IBM Plex Mono',monospace;
+  color:var(--gold);
+  letter-spacing:1px;
+  margin-bottom:16px;
+}
+
+.hero h1{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(28px,4vw,48px);
+  font-weight:900;
+  line-height:1.15;
+  color:var(--text);
+  margin-bottom:12px;
+}
+
+.hero h1 em{color:var(--gold);font-style:italic;}
+
+.hero p{
+  color:var(--text2);
+  font-size:15px;
+  max-width:580px;
+  line-height:1.7;
+  margin-bottom:24px;
+}
+
+.hero-stats{
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+}
+
+.hstat{
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:10px 16px;
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+}
+
+.hstat-num{
+  font-family:'Playfair Display',serif;
+  font-size:22px;
+  font-weight:700;
+  color:var(--gold);
+  line-height:1;
+}
+
+.hstat-label{
+  font-size:11px;
+  color:var(--text3);
+  font-family:'IBM Plex Mono',monospace;
+}
+
+/* ─── CONTENT AREA ─── */
+.content{padding:40px 48px 80px;}
+
+/* ─── UNIT HEADER ─── */
+.unit-header{
+  display:flex;
+  align-items:center;
+  gap:20px;
+  margin-bottom:36px;
+  padding:24px 28px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:18px;
+  position:relative;
+  overflow:hidden;
+}
+
+.unit-header.u1{border-top:3px solid var(--gold);}
+.unit-header.u2{border-top:3px solid var(--mint);}
+
+.unit-header::before{
+  content:'';
+  position:absolute;
+  right:-30px;top:-30px;
+  width:160px;height:160px;
+  border-radius:50%;
+  opacity:0.4;
+}
+
+.unit-header.u1::before{background:radial-gradient(circle,rgba(245,200,66,0.1),transparent 70%);}
+.unit-header.u2::before{background:radial-gradient(circle,rgba(63,255,162,0.1),transparent 70%);}
+
+.unit-num{
+  font-family:'Playfair Display',serif;
+  font-size:52px;
+  font-weight:900;
+  line-height:1;
+  flex-shrink:0;
+}
+
+.u1 .unit-num{color:var(--gold);}
+.u2 .unit-num{color:var(--mint);}
+
+.unit-info h2{
+  font-family:'Playfair Display',serif;
+  font-size:22px;
+  font-weight:700;
+  color:var(--text);
+  margin-bottom:4px;
+}
+
+.unit-info p{font-size:13px;color:var(--text2);margin-bottom:10px;}
+
+.topic-chips{display:flex;gap:7px;flex-wrap:wrap;}
+
+.tc{
+  font-size:11px;
+  font-family:'IBM Plex Mono',monospace;
+  padding:3px 10px;
+  border-radius:6px;
+  font-weight:600;
+}
+
+.tc-gold{background:var(--gold-dim);color:var(--gold);border:1px solid var(--gold-border);}
+.tc-mint{background:var(--mint-dim);color:var(--mint);border:1px solid rgba(63,255,162,0.25);}
+.tc-coral{background:var(--coral-dim);color:var(--coral);border:1px solid rgba(255,112,85,0.25);}
+.tc-blue{background:var(--blue-dim);color:var(--blue);border:1px solid rgba(110,181,255,0.25);}
+
+/* ─── CONCEPT BLOCK ─── */
+.concept-block{
+  margin-bottom:56px;
+}
+
+.concept-title{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  margin-bottom:22px;
+  padding-bottom:14px;
+  border-bottom:1px solid var(--border);
+}
+
+.concept-title .ct-icon{
+  width:44px;height:44px;
+  border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;
+  flex-shrink:0;
+}
+
+.ct-gold{background:var(--gold-dim);border:1px solid var(--gold-border);}
+.ct-mint{background:var(--mint-dim);border:1px solid rgba(63,255,162,0.25);}
+.ct-coral{background:var(--coral-dim);border:1px solid rgba(255,112,85,0.25);}
+.ct-blue{background:var(--blue-dim);border:1px solid rgba(110,181,255,0.25);}
+.ct-lav{background:var(--lav-dim);border:1px solid rgba(184,153,255,0.25);}
+
+.concept-title h3{
+  font-family:'Playfair Display',serif;
+  font-size:22px;
+  font-weight:700;
+  color:var(--text);
+}
+
+.concept-title .ct-sub{
+  font-size:12px;
+  color:var(--text3);
+  font-family:'IBM Plex Mono',monospace;
+  margin-top:2px;
+}
+
+/* ─── EXPLANATION BOXES ─── */
+.explain-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:16px;
+  margin-bottom:20px;
+}
+
+@media(max-width:800px){.explain-grid{grid-template-columns:1fr;}}
+
+.explain-box{
+  border-radius:14px;
+  padding:18px 20px;
+  border:1px solid;
+}
+
+.eb-toddler{
+  background:rgba(245,200,66,0.06);
+  border-color:rgba(245,200,66,0.2);
+}
+
+.eb-toddler .eb-head{color:var(--gold);}
+
+.eb-formal{
+  background:rgba(110,181,255,0.05);
+  border-color:rgba(110,181,255,0.18);
+}
+
+.eb-formal .eb-head{color:var(--blue);}
+
+.eb-head{
+  font-size:10px;
+  font-family:'IBM Plex Mono',monospace;
+  font-weight:600;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  margin-bottom:10px;
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+
+.explain-box p{
+  font-size:14px;
+  color:var(--text2);
+  line-height:1.75;
+}
+
+.explain-box p strong{color:var(--text);font-weight:700;}
+
+/* ─── MATH DISPLAY ─── */
+.math-env{
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:16px 20px;
+  margin:14px 0;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:13px;
+  color:var(--gold);
+  line-height:1.9;
+  overflow-x:auto;
+  position:relative;
+}
+
+.math-env .me-label{
+  position:absolute;
+  top:8px;right:12px;
+  font-size:9px;
+  color:var(--text3);
+  letter-spacing:1px;
+  text-transform:uppercase;
+}
+
+.formula-highlight{
+  background:rgba(63,255,162,0.07);
+  border:1px solid rgba(63,255,162,0.22);
+  border-radius:12px;
+  padding:14px 18px;
+  margin:14px 0;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:13px;
+  color:var(--mint);
+  line-height:1.9;
+}
+
+.formula-highlight .fh-title{
+  font-size:9px;
+  color:rgba(63,255,162,0.6);
+  letter-spacing:2px;
+  text-transform:uppercase;
+  margin-bottom:8px;
+  font-family:'IBM Plex Mono',monospace;
+}
+
+/* ─── PATTERN RECOGNITION ─── */
+.pattern-box{
+  background:linear-gradient(135deg,rgba(255,112,85,0.07),rgba(255,94,126,0.05));
+  border:1px solid rgba(255,112,85,0.25);
+  border-radius:14px;
+  padding:20px 22px;
+  margin:20px 0;
+}
+
+.pattern-box .pb-head{
+  display:flex;align-items:center;gap:10px;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11px;
+  font-weight:600;
+  color:var(--coral);
+  letter-spacing:1px;
+  text-transform:uppercase;
+  margin-bottom:14px;
+}
+
+.pattern-box .pb-head span{font-size:16px;}
+
+.pattern-row{
+  display:flex;
+  gap:10px;
+  margin-bottom:10px;
+  align-items:flex-start;
+}
+
+.pattern-row:last-child{margin-bottom:0;}
+
+.pr-if{
+  flex-shrink:0;
+  background:rgba(255,112,85,0.15);
+  color:var(--coral);
+  font-family:'IBM Plex Mono',monospace;
+  font-size:10px;
+  font-weight:700;
+  padding:2px 8px;
+  border-radius:4px;
+  margin-top:3px;
+  letter-spacing:1px;
+}
+
+.pr-then{
+  font-size:13.5px;
+  color:var(--text);
+  line-height:1.6;
+}
+
+.pr-then em{
+  color:var(--gold);
+  font-style:normal;
+  font-weight:700;
+}
+
+/* ─── PYQ QUESTIONS ─── */
+.pyq-section{
+  margin-top:28px;
+}
+
+.pyq-label{
+  font-size:10px;
+  font-family:'IBM Plex Mono',monospace;
+  letter-spacing:2px;
+  color:var(--text3);
+  text-transform:uppercase;
+  margin-bottom:16px;
+  display:flex;align-items:center;gap:10px;
+}
+
+.pyq-label::after{
+  content:'';flex:1;height:1px;
+  background:linear-gradient(to right,var(--border),transparent);
+}
+
+.pyq-card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:16px;
+  margin-bottom:18px;
+  overflow:hidden;
+}
+
+.pyq-card:hover{border-color:var(--border2);}
+
+.pyq-q{
+  padding:18px 22px;
+  cursor:pointer;
+  display:flex;
+  align-items:flex-start;
+  gap:14px;
+  user-select:none;
+  transition:background 0.15s;
+}
+
+.pyq-q:hover{background:var(--surface2);}
+
+.pyq-num{
+  width:36px;height:36px;
+  border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:13px;
+  font-weight:700;
+  flex-shrink:0;
+}
+
+.pyq-gold .pyq-num{background:var(--gold-dim);color:var(--gold);border:1px solid var(--gold-border);}
+.pyq-mint .pyq-num{background:var(--mint-dim);color:var(--mint);border:1px solid rgba(63,255,162,0.25);}
+.pyq-coral .pyq-num{background:var(--coral-dim);color:var(--coral);border:1px solid rgba(255,112,85,0.25);}
+.pyq-blue .pyq-num{background:var(--blue-dim);color:var(--blue);border:1px solid rgba(110,181,255,0.25);}
+.pyq-lav .pyq-num{background:var(--lav-dim);color:var(--lavender);border:1px solid rgba(184,153,255,0.25);}
+
+.pyq-q-text{flex:1;}
+
+.pyq-question{
+  font-family:'Playfair Display',serif;
+  font-size:16px;
+  font-weight:700;
+  color:var(--text);
+  margin-bottom:6px;
+  line-height:1.4;
+}
+
+.pyq-tags{display:flex;gap:7px;flex-wrap:wrap;align-items:center;}
+
+.tag{
+  font-size:10px;
+  font-family:'IBM Plex Mono',monospace;
+  padding:2px 8px;border-radius:4px;
+  font-weight:700;
+}
+
+.tag-fire{background:rgba(255,94,126,0.15);color:var(--red);}
+.tag-year{background:var(--surface2);color:var(--text3);border:1px solid var(--border);}
+.tag-marks{background:rgba(110,181,255,0.1);color:var(--blue);}
+
+.pyq-toggle{
+  color:var(--text3);
+  font-size:20px;
+  transition:transform 0.3s;
+  flex-shrink:0;
+  margin-top:4px;
+}
+
+.pyq-card.open .pyq-toggle{transform:rotate(180deg);}
+
+.pyq-solution{
+  display:none;
+  border-top:1px solid var(--border);
+  padding:24px 22px;
+}
+
+.pyq-card.open .pyq-solution{display:block;}
+
+/* Solution anatomy */
+.sol-section{
+  margin-bottom:22px;
+}
+
+.sol-section:last-child{margin-bottom:0;}
+
+.sol-head{
+  font-size:10px;
+  font-family:'IBM Plex Mono',monospace;
+  color:var(--mint);
+  letter-spacing:2px;
+  text-transform:uppercase;
+  font-weight:700;
+  margin-bottom:12px;
+  display:flex;align-items:center;gap:8px;
+}
+
+.sol-head::after{content:'';flex:1;height:1px;background:var(--border);}
+
+.steps-list{list-style:none;display:flex;flex-direction:column;gap:14px;}
+
+.step-item{display:flex;gap:14px;align-items:flex-start;}
+
+.step-ball{
+  width:28px;height:28px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;
+  flex-shrink:0;margin-top:2px;
+}
+
+.sb-gold{background:var(--gold);color:#000;}
+.sb-mint{background:var(--mint);color:#000;}
+.sb-coral{background:var(--coral);color:#fff;}
+.sb-blue{background:var(--blue);color:#000;}
+.sb-lav{background:var(--lavender);color:#000;}
+
+.step-body strong{
+  display:block;
+  font-size:13px;
+  font-weight:700;
+  color:var(--text);
+  margin-bottom:3px;
+}
+
+.step-body p,.step-body span{
+  font-size:13.5px;
+  color:var(--text2);
+  line-height:1.7;
+}
+
+.answer-final{
+  background:linear-gradient(135deg,rgba(255,94,126,0.08),rgba(255,112,85,0.06));
+  border:1px solid rgba(255,94,126,0.25);
+  border-radius:12px;
+  padding:14px 18px;
+  margin-top:16px;
+}
+
+.answer-final .af-label{
+  font-size:9px;
+  font-family:'IBM Plex Mono',monospace;
+  color:var(--red);
+  letter-spacing:2px;
+  font-weight:700;
+  margin-bottom:6px;
+}
+
+.answer-final p{font-size:14px;color:#ffaabb;line-height:1.7;}
+
+.pro-tip{
+  background:rgba(184,153,255,0.07);
+  border:1px solid rgba(184,153,255,0.2);
+  border-radius:12px;
+  padding:14px 18px;
+  margin-top:14px;
+}
+
+.pro-tip .pt-label{
+  font-size:9px;
+  font-family:'IBM Plex Mono',monospace;
+  color:var(--lavender);
+  letter-spacing:2px;
+  font-weight:700;
+  margin-bottom:6px;
+}
+
+.pro-tip p{font-size:13.5px;color:#ccbbff;line-height:1.7;}
+
+/* ─── DIVIDER ─── */
+.unit-divider{
+  display:flex;align-items:center;gap:16px;
+  margin:60px 0 48px;
+}
+
+.unit-divider::before,.unit-divider::after{
+  content:'';flex:1;height:1px;background:var(--border);
+}
+
+.unit-divider span{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11px;color:var(--text3);
+  letter-spacing:2px;text-transform:uppercase;
+  white-space:nowrap;
+}
+
+/* ─── FORMULA SHEET CALLOUT ─── */
+.mega-formula{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:28px;
+  margin-bottom:40px;
+}
+
+.mega-formula h4{
+  font-family:'Playfair Display',serif;
+  font-size:18px;color:var(--gold);
+  margin-bottom:20px;
+  padding-bottom:12px;
+  border-bottom:1px solid var(--border);
+}
+
+.mf-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:14px;
+}
+
+.mf-item{
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:12px 14px;
+}
+
+.mf-item .mf-name{
+  font-size:10px;
+  font-family:'IBM Plex Mono',monospace;
+  color:var(--text3);
+  letter-spacing:1px;
+  text-transform:uppercase;
+  margin-bottom:6px;
+}
+
+.mf-item .mf-val{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:12px;
+  color:var(--mint);
+  line-height:1.7;
+}
+
+/* ─── CONVERGENCE FLOWCHART ─── */
+.flowchart{
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:20px;
+  margin:18px 0;
+}
+
+.flowchart h5{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:10px;
+  color:var(--gold);
+  letter-spacing:2px;
+  text-transform:uppercase;
+  margin-bottom:16px;
+}
+
+.fc-flow{
+  display:flex;
+  flex-direction:column;
+  gap:0;
+}
+
+.fc-node{
+  background:var(--surface3);
+  border:1px solid var(--border2);
+  border-radius:10px;
+  padding:10px 16px;
+  font-size:13px;
+  color:var(--text);
+  position:relative;
+}
+
+.fc-node.start{border-color:var(--gold);background:var(--gold-dim);color:var(--gold);}
+.fc-node.decision{border-color:var(--blue);background:var(--blue-dim);}
+.fc-node.answer-yes{border-color:var(--mint);background:var(--mint-dim);color:var(--mint);}
+.fc-node.answer-no{border-color:var(--coral);background:var(--coral-dim);color:var(--coral);}
+.fc-node.next{border-color:var(--lavender);background:var(--lav-dim);color:var(--lavender);}
+
+.fc-arrow{
+  text-align:center;
+  color:var(--text3);
+  font-size:18px;
+  padding:2px 0;
+  line-height:1;
+}
+
+.fc-branch{
+  display:grid;grid-template-columns:1fr 1fr;gap:12px;
+  margin-top:0;
+}
+
+.fc-branch .fc-side{display:flex;flex-direction:column;gap:0;}
+.fc-side-label{
+  text-align:center;
+  font-size:10px;
+  font-family:'IBM Plex Mono',monospace;
+  color:var(--text3);
+  padding:3px;
+}
+
+/* ─── TEST TABLE ─── */
+.test-table{
+  width:100%;
+  border-collapse:collapse;
+  margin:16px 0;
+  border-radius:12px;
+  overflow:hidden;
+}
+
+.test-table th{
+  background:var(--surface3);
+  padding:10px 14px;
+  text-align:left;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:10px;
+  letter-spacing:1px;
+  text-transform:uppercase;
+  color:var(--text3);
+  border-bottom:1px solid var(--border);
+}
+
+.test-table td{
+  padding:11px 14px;
+  font-size:13px;
+  border-bottom:1px solid var(--border);
+  vertical-align:top;
+  color:var(--text2);
+}
+
+.test-table tr:last-child td{border-bottom:none;}
+.test-table tr:hover td{background:var(--surface2);}
+.test-table td:first-child{color:var(--gold);font-weight:700;font-family:'IBM Plex Mono',monospace;}
+
+/* ─── WARNING BOX ─── */
+.warning-box{
+  background:rgba(255,94,126,0.07);
+  border:1px solid rgba(255,94,126,0.25);
+  border-radius:12px;
+  padding:14px 18px;
+  margin:14px 0;
+  font-size:13.5px;
+  color:#ffbbcc;
+  line-height:1.7;
+}
+
+.warning-box .w-head{
+  font-size:9px;
+  font-family:'IBM Plex Mono',monospace;
+  color:var(--red);
+  letter-spacing:2px;
+  font-weight:700;
+  margin-bottom:6px;
+}
+
+/* ─── SCROLL UTILS ─── */
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+
+@media(max-width:768px){
+  .sidebar{display:none;}
+  .hero{padding:28px 20px;}
+  .content{padding:24px 20px 60px;}
+  .unit-header{flex-direction:column;align-items:flex-start;}
+  .unit-num{font-size:36px;}
+}
+</style>
+</head>
+<body>
+<div class="layout">
+
+<!-- ═══════════════════════════════ SIDEBAR ═══════════════════════════════ -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-tag">⚡ CSVTU 2nd Sem</div>
+    <h2>Engineering <span>Maths II</span><br>Deep Study Guide</h2>
+  </div>
+
+  <div class="nav-section-label">Unit I — Complex Numbers</div>
+  <a href="#polar" class="nav-item"><span class="icon">🌀</span> Polar Form & Euler <span class="badge">BASE</span></a>
+  <a href="#demoivre" class="nav-item"><span class="icon">⚡</span> De Moivre's Theorem <span class="badge">🔥HOT</span></a>
+  <a href="#roots" class="nav-item"><span class="icon">🔢</span> nth Roots of Unity <span class="badge">🔥HOT</span></a>
+  <a href="#realimag" class="nav-item"><span class="icon">✂️</span> Real & Imaginary Parts</a>
+  <a href="#cis" class="nav-item"><span class="icon">∑</span> C+iS Method <span class="badge">🔥HOT</span></a>
+
+  <div class="nav-section-label">Unit II — Series</div>
+  <a href="#what-series" class="nav-item"><span class="icon">📐</span> What is Convergence?</a>
+  <a href="#ratio" class="nav-item"><span class="icon">📊</span> D'Alembert's Ratio Test <span class="badge">🔥HOT</span></a>
+  <a href="#raabe" class="nav-item"><span class="icon">🔬</span> Raabe's Test</a>
+  <a href="#root" class="nav-item"><span class="icon">√</span> Cauchy's Root Test</a>
+  <a href="#power" class="nav-item"><span class="icon">📡</span> Power Series & ROC <span class="badge">🔥HOT</span></a>
+
+  <div class="nav-section-label">Quick Ref</div>
+  <a href="#formulas" class="nav-item"><span class="icon">🧮</span> All Formulas</a>
+  <a href="#patterns" class="nav-item"><span class="icon">🎯</span> Pattern Guide</a>
+</nav>
+
+<!-- ═══════════════════════════════ MAIN ═══════════════════════════════ -->
+<div class="main">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-chip">📚 3000B02AT014 · B.Tech 2nd Sem · CSVTU</div>
+    <h1>Units I & II —<br><em>From Zero to Exam Ready</em></h1>
+    <p>Every concept explained like you've never seen it before. Every trick, every pattern, every PYQ — with step-by-step solutions so clear even a beginner can follow. You've got this. 💪</p>
+    <div class="hero-stats">
+      <div class="hstat"><div class="hstat-num">2</div><div class="hstat-label">UNITS COVERED</div></div>
+      <div class="hstat"><div class="hstat-num">8</div><div class="hstat-label">CORE CONCEPTS</div></div>
+      <div class="hstat"><div class="hstat-num">14</div><div class="hstat-label">PYQ QUESTIONS</div></div>
+      <div class="hstat"><div class="hstat-num">100%</div><div class="hstat-label">FROM SCRATCH</div></div>
+    </div>
+  </div>
+
+  <!-- ═══ CONTENT ═══ -->
+  <div class="content">
+
+    <!-- ══════════════════════════════════════════════════════════════
+         UNIT I
+    ══════════════════════════════════════════════════════════════ -->
+
+    <div class="unit-header u1">
+      <div class="unit-num">I</div>
+      <div class="unit-info">
+        <h2>Complex Numbers</h2>
+        <p>De Moivre's Theorem · nth Roots · Real &amp; Imaginary Parts · C+iS Method · 12 Hrs</p>
+        <div class="topic-chips">
+          <span class="tc tc-gold">De Moivre</span>
+          <span class="tc tc-coral">Cube/4th Roots</span>
+          <span class="tc tc-gold">log(a+ib)</span>
+          <span class="tc tc-coral">sin/cos of complex</span>
+          <span class="tc tc-blue">C+iS Series Sum</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ──────────── 1A: POLAR FORM ──────────── -->
+    <div id="polar" class="concept-block">
+      <div class="concept-title">
+        <div class="ct-icon ct-gold">🌀</div>
+        <div>
+          <h3>First: Understand Polar Form & Euler's Formula</h3>
+          <div class="ct-sub">The FOUNDATION — everything else builds on this</div>
+        </div>
+      </div>
+
+      <div class="explain-grid">
+        <div class="explain-box eb-toddler">
+          <div class="eb-head">🧒 Think of it this way</div>
+          <p>A complex number <strong>a + ib</strong> is like a point on a map. Instead of saying "3 steps right, 4 steps up", you can say <strong>"5 steps in a certain direction"</strong>. The 5 is called <strong>r (modulus)</strong> and the direction is called <strong>θ (argument)</strong>. That's all polar form is — a different GPS coordinate for the same point!</p>
+        </div>
+        <div class="explain-box eb-formal">
+          <div class="eb-head">📖 The Formal Definition</div>
+          <p>Every complex number z = a + ib can be written as <strong>z = r(cosθ + i sinθ)</strong> where r = |z| = √(a²+b²) is the modulus and θ = arg(z) = tan⁻¹(b/a) is the argument. Euler's formula then gives us the compact form <strong>z = re^(iθ)</strong>.</p>
+        </div>
+      </div>
+
+      <div class="formula-highlight">
+        <div class="fh-title">🌟 Euler's Formula — The Most Important Formula in All of Maths</div>
+        e^(iθ) = cos θ + i sin θ
+
+        Special cases (memorize these!):
+        e^(iπ) = cos π + i sin π = -1 + 0 = -1
+        e^(iπ/2) = cos(π/2) + i sin(π/2) = 0 + i = i
+        e^(i·0) = cos 0 + i sin 0 = 1 + 0 = 1
+
+        General polar form:
+        a + ib = r·e^(iθ)   where r = √(a²+b²),  θ = tan⁻¹(b/a)
+      </div>
+
+      <div class="explain-box eb-toddler" style="margin-top:12px;">
+        <div class="eb-head">🧒 Why does e^(iθ) = cosθ + i sinθ? (Toddler Proof)</div>
+        <p>Expand e^(iθ) using the Taylor series: e^x = 1 + x + x²/2! + x³/3! + ...<br>
+        Put x = iθ: e^(iθ) = 1 + iθ + (iθ)²/2! + (iθ)³/3! + ...<br>
+        Now i² = -1, i³ = -i, i⁴ = 1 — these cycle! Grouping real and imaginary parts gives exactly <strong>cosθ + i sinθ</strong>. Mind = blown. 🤯</p>
+      </div>
+    </div>
+
+    <!-- ──────────── 1B: DE MOIVRE ──────────── -->
+    <div id="demoivre" class="concept-block">
+      <div class="concept-title">
+        <div class="ct-icon ct-gold">⚡</div>
+        <div>
+          <h3>De Moivre's Theorem</h3>
+          <div class="ct-sub">THE most important theorem in Unit I — appears EVERY exam</div>
+        </div>
+      </div>
+
+      <div class="explain-grid">
+        <div class="explain-box eb-toddler">
+          <div class="eb-head">🧒 The Spinning Clock Analogy</div>
+          <p>Imagine a clock hand pointing at angle θ. If you spin it to that position <strong>n times in a row</strong>, where does it end up? At angle <strong>n×θ</strong> — obviously! De Moivre says the same thing for complex numbers. Multiplying (cosθ + i sinθ) by itself n times just multiplies the angle by n. That's literally all it is.</p>
+        </div>
+        <div class="explain-box eb-formal">
+          <div class="eb-head">📖 Formal Statement</div>
+          <p>For any rational number n (integer, fraction), De Moivre's Theorem states:<br><br>
+          <strong>(cos θ + i sin θ)ⁿ = cos(nθ) + i sin(nθ)</strong><br><br>
+          Using Euler: Since e^(iθ) = cosθ + i sinθ, raising to power n gives e^(inθ) = cos(nθ) + i sin(nθ). The theorem is literally just a restatement of Euler + exponent rules!</p>
+        </div>
+      </div>
+
+      <div class="formula-highlight">
+        <div class="fh-title">⚡ De Moivre's Theorem — The Formula</div>
+        (cos θ + i sin θ)ⁿ = cos(nθ) + i sin(nθ)
+
+        Also written as: (e^iθ)ⁿ = e^(inθ)
+
+        Works for ALL rational n: integers, fractions, negative numbers!
+      </div>
+
+      <div class="math-env">
+        <div class="me-label">PROOF — BY INDUCTION</div>
+Base Case (n=2):
+(cosθ + i sinθ)² = cos²θ + 2i sinθ cosθ + i²sin²θ
+                 = (cos²θ - sin²θ) + i(2sinθ cosθ)
+                 = cos(2θ) + i sin(2θ)  ✓   [using double angle formulas]
+
+Inductive Step: Assume true for n=k:
+   (cosθ + i sinθ)^k = cos(kθ) + i sin(kθ)
+
+For n = k+1:
+(cosθ + i sinθ)^(k+1) = [cos(kθ) + i sin(kθ)] · [cosθ + i sinθ]
+= cos(kθ)cosθ - sin(kθ)sinθ + i[sin(kθ)cosθ + cos(kθ)sinθ]
+= cos(kθ + θ) + i sin(kθ + θ)      [using addition formulas]
+= cos(k+1)θ + i sin(k+1)θ  ✓
+
+For negative n: Use (cosθ + i sinθ)⁻¹ = cos(-θ) + i sin(-θ)
+      </div>
+
+      <div class="pattern-box">
+        <div class="pb-head"><span>🎯</span> PATTERN RECOGNITION — How to identify a De Moivre question</div>
+        <div class="pattern-row">
+          <div class="pr-if">IF YOU SEE</div>
+          <div class="pr-then">"Prove that cos 5θ = 16cos⁵θ - 20cos³θ + 5cosθ" → <em>De Moivre to expand (cosθ+i sinθ)⁵, then take real part</em></div>
+        </div>
+        <div class="pattern-row">
+          <div class="pr-if">IF YOU SEE</div>
+          <div class="pr-then">"Find all nth roots of a complex number" → <em>Write in polar form, use De Moivre with power 1/n, substitute k = 0,1,...,n-1</em></div>
+        </div>
+        <div class="pattern-row">
+          <div class="pr-if">IF YOU SEE</div>
+          <div class="pr-then">"Express cosⁿθ or sinⁿθ in multiple angles" → <em>Use De Moivre: write (cosθ+i sinθ)ⁿ, expand by binomial theorem, compare parts</em></div>
+        </div>
+        <div class="pattern-row">
+          <div class="pr-if">IF YOU SEE</div>
+          <div class="pr-then">"Show that..." with trig involving nθ → <em>De Moivre is the tool — convert to exponential, simplify, convert back</em></div>
+        </div>
+      </div>
+
+      <div class="pyq-section">
+        <div class="pyq-label">📋 PYQ Questions — De Moivre's Theorem</div>
+
+        <!-- PYQ 1 -->
+        <div class="pyq-card pyq-gold" onclick="toggle(this)">
+          <div class="pyq-q">
+            <div class="pyq-num">Q1</div>
+            <div class="pyq-q-text">
+              <div class="pyq-question">Prove De Moivre's Theorem and use it to expand cos(5θ) in powers of cos θ</div>
+              <div class="pyq-tags">
+                <span class="tag tag-fire">🔥 MUST DO</span>
+                <span class="tag tag-year">Asked 2019, 2021, 2023</span>
+                <span class="tag tag-marks">14 Marks</span>
+              </div>
+            </div>
+            <div class="pyq-toggle">▾</div>
+          </div>
+          <div class="pyq-solution">
+            <div class="sol-section">
+              <div class="sol-head">🧒 What this question is really asking</div>
+              <p style="font-size:14px;color:var(--text2);">Part 1: Prove the theorem (we did that above). Part 2: Find cos(5θ) as a polynomial in cosθ only. The trick is to expand (cosθ+i sinθ)⁵ using <strong>Binomial Theorem</strong>, then compare REAL parts on both sides.</p>
+            </div>
+
+            <div class="sol-section">
+              <div class="sol-head">✏️ Step-by-Step Solution</div>
+              <ul class="steps-list">
+                <li class="step-item">
+                  <div class="step-ball sb-gold">1</div>
+                  <div class="step-body">
+                    <strong>Write the De Moivre form</strong>
+                    <div class="math-env" style="margin-top:8px;">
+(cosθ + i sinθ)⁵ = cos(5θ) + i sin(5θ)    ...(by De Moivre)
+                    </div>
+                  </div>
+                </li>
+                <li class="step-item">
+                  <div class="step-ball sb-gold">2</div>
+                  <div class="step-body">
+                    <strong>Expand the LEFT side using Binomial Theorem (a+b)⁵</strong>
+                    <span>Let a = cosθ, b = i sinθ. Use ⁵C₀, ⁵C₁... = 1, 5, 10, 10, 5, 1</span>
+                    <div class="math-env" style="margin-top:8px;">
+= ⁵C₀cos⁵θ + ⁵C₁cos⁴θ(isinθ) + ⁵C₂cos³θ(isinθ)² + ⁵C₃cos²θ(isinθ)³ + ⁵C₄cosθ(isinθ)⁴ + ⁵C₅(isinθ)⁵
+
+Remember: i²=-1, i³=-i, i⁴=1, i⁵=i
+
+= cos⁵θ + 5i cos⁴θ sinθ - 10cos³θ sin²θ - 10i cos²θ sin³θ + 5cosθ sin⁴θ + i sin⁵θ
+                    </div>
+                  </div>
+                </li>
+                <li class="step-item">
+                  <div class="step-ball sb-gold">3</div>
+                  <div class="step-body">
+                    <strong>Group REAL parts (no i) and IMAGINARY parts (with i)</strong>
+                    <div class="math-env" style="margin-top:8px;">
+Real part = cos⁵θ - 10cos³θ sin²θ + 5cosθ sin⁴θ
+Imag part = 5cos⁴θ sinθ - 10cos²θ sin³θ + sin⁵θ
+                    </div>
+                  </div>
+                </li>
+                <li class="step-item">
+                  <div class="step-ball sb-gold">4</div>
+                  <div class="step-body">
+                    <strong>Compare Real parts from both sides. Then substitute sin²θ = 1-cos²θ to get ALL cosines.</strong>
+                    <div class="math-env" style="margin-top:8px;">
+cos(5θ) = cos⁵θ - 10cos³θ(1-cos²θ) + 5cosθ(1-cos²θ)²
+
+Expand:
+= cos⁵θ - 10cos³θ + 10cos⁵θ + 5cosθ(1 - 2cos²θ + cos⁴θ)
+= cos⁵θ - 10cos³θ + 10cos⁵θ + 5cosθ - 10cos³θ + 5cos⁵θ
+= 16cos⁵θ - 20cos³θ + 5cosθ
+                    </div>
+                  </div>
+                </li>
+              </ul>
+            </div>
+
+            <div class="answer-final">
+              <div class="af-label">✅ FINAL ANSWER</div>
+              <p><strong>cos(5θ) = 16cos⁵θ − 20cos³θ + 5cosθ</strong><br>
+              Similarly, comparing imaginary parts gives: sin(5θ) = 16sin⁵θ - 12sin³θ + ... (can be asked separately)</p>
+            </div>
+
+            <div class="pro-tip">
+              <div class="pt-label">💡 THE GOLDEN RULE for these questions</div>
+              <p><strong>Real part comparison → cos(nθ) formula</strong><br>
+              <strong>Imaginary part comparison → sin(nθ) formula</strong><br>
+              After grouping, ALWAYS replace sin²θ with (1−cos²θ) to get cos only (or vice versa). The binomial coefficients ⁵C₀=1, ⁵C₁=5, ⁵C₂=10, ⁵C₃=10, ⁵C₄=5, ⁵C₅=1 — memorize Pascal's triangle!</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ──────────── 1C: nth ROOTS ──────────── -->
+    <div id="roots" class="concept-block">
+      <div class="concept-title">
+        <div class="ct-icon ct-coral">🔢</div>
+        <div>
+          <h3>nth Roots of Complex Numbers &amp; Roots of Unity</h3>
+          <div class="ct-sub">Cube roots, 4th roots — asked almost every single year</div>
+        </div>
+      </div>
+
+      <div class="explain-grid">
+        <div class="explain-box eb-toddler">
+          <div class="eb-head">🧒 The Pizza Slice Analogy</div>
+          <p>Finding the nth roots of a complex number is like cutting a circular pizza into <strong>n equal slices</strong>. Each slice's starting corner is one root! They're all equally spaced around a circle at angles 360°/n apart. Cube roots → 3 slices (0°, 120°, 240°). 4th roots → 4 slices (0°, 90°, 180°, 270°). Simple!</p>
+        </div>
+        <div class="explain-box eb-formal">
+          <div class="eb-head">📖 The Method (3 steps)</div>
+          <p><strong>Step 1:</strong> Write the complex number in polar form: r·e^(iθ)<br>
+          <strong>Step 2:</strong> The general form adds 2kπ to angle: r·e^(i(θ+2kπ))<br>
+          <strong>Step 3:</strong> Apply power 1/n and substitute k = 0, 1, 2, ..., n−1<br><br>
+          You always get exactly n distinct roots.</p>
+        </div>
+      </div>
+
+      <div class="formula-highlight">
+        <div class="fh-title">🔑 Master Formula for nth Roots</div>
+        If z = r(cosθ + i sinθ), then the n roots of z^(1/n) are:
+
+        z_k = r^(1/n) · [cos((θ + 2kπ)/n) + i sin((θ + 2kπ)/n)]
+
+        where k = 0, 1, 2, ..., (n-1)
+
+        For roots of UNITY (z^n = 1):  r=1, θ=0
+        z_k = cos(2kπ/n) + i sin(2kπ/n) = e^(2kπi/n)
+      </div>
+
+      <div class="pattern-box">
+        <div class="pb-head"><span>🎯</span> HOW TO INSTANTLY IDENTIFY THESE QUESTIONS</div>
+        <div class="pattern-row">
+          <div class="pr-if">KEYWORDS</div>
+          <div class="pr-then">"roots of unity", "find all values of z where zⁿ = 1", "cube root of -1 or i", "nth roots of a+ib" → <em>Always use the master formula above with k=0,1,...,n-1</em></div>
+        </div>
+        <div class="pattern-row">
+          <div class="pr-if">TRICK</div>
+          <div class="pr-then">For <em>cube roots of unity</em> specifically, the 3 roots are always: <em>1, ω, ω²</em> where ω = e^(2πi/3). The magic property <em>1+ω+ω²=0</em> is asked in EVERY CT!</div>
+        </div>
+        <div class="pattern-row">
+          <div class="pr-if">TRICK</div>
+          <div class="pr-then">For <em>4th roots of 1</em>: roots are <em>1, i, -1, -i</em>. For 4th roots of -1: write -1 = e^(iπ), then use k=0,1,2,3.</div>
+        </div>
+      </div>
+
+      <div class="pyq-section">
+        <div class="pyq-label">📋 PYQ Questions — nth Roots</div>
+
+        <!-- PYQ 2 -->
+        <div class="pyq-card pyq-coral" onclick="toggle(this)">
+          <div class="pyq-q">
+            <div class="pyq-num">Q2</div>
+            <div class="pyq-q-text">
+              <div class="pyq-question">Find all the cube roots of unity. Show that their sum is 0 and product is 1.</div>
+              <div class="pyq-tags">
+                <span class="tag tag-fire">🔥 MUST DO</span>
+                <span class="tag tag-year">Asked Every Year (CT + ESE)</span>
+                <span class="tag tag-marks">7–14 Marks</span>
+              </div>
+            </div>
+            <div class="pyq-toggle">▾</div>
+          </div>
+          <div class="pyq-solution">
+            <div class="sol-section">
+              <div class="sol-head">🧒 Setup — what are we solving?</div>
+              <p style="font-size:14px;color:var(--text2);">We want z such that <strong>z³ = 1</strong>. A cubic equation has exactly 3 roots. We need to find all 3 using the master formula. The number 1 in polar form is r=1, θ=0.</p>
+            </div>
+
+            <div class="sol-section">
+              <div class="sol-head">✏️ Step-by-Step Solution</div>
+              <ul class="steps-list">
+                <li class="step-item">
+                  <div class="step-ball sb-coral">1</div>
+                  <div class="step-body">
+                    <strong>Write 1 in general polar form (add 2kπ)</strong>
+                    <div class="math-env" style="margin-top:8px;">
+1 = cos(0) + i sin(0) = cos(2kπ) + i sin(2kπ)   for k = 0, 1, 2, ...
+                    </div>
+                  </div>
+                </li>
+                <li class="step-item">
+                  <div class="step-ball sb-coral">2</div>
+                  <div class="step-body">
+                    <strong>Apply De Moivre with power 1/3</strong>
+                    <div class="math-env" style="margin-top:8px;">
+z = (1)^(1/3) = [cos(2kπ) + i sin(2kπ)]^(1/3)
+  = cos(2kπ/3) + i sin(2kπ/3)
+                    </div>
+                  </div>
+                </li>
+                <li class="step-item">
+                  <div class="step-ball sb-coral">3</div>
+                  <div class="step-body">
+                    <strong>Substitute k = 0, 1, 2 (only 3 distinct roots)</strong>
+                    <div class="math-env" style="margin-top:8px;">
+k=0: z₁ = cos(0) + i sin(0) = 1
+
+k=1: z₂ = cos(2π/3) + i sin(2π/3)
+        = -1/2 + i(√3/2)  ← this is called ω
+
+k=2: z₃ = cos(4π/3) + i sin(4π/3)
+        = -1/2 - i(√3/2)  ← this is ω²
+                    </div>
+                  </div>
+                </li>
+                <li class="step-item">
+                  <div class="step-ball sb-coral">4</div>
+                  <div class="step-body">
+                    <strong>Prove Sum = 0</strong>
+                    <div class="math-env" style="margin-top:8px;">
+1 + ω + ω² = 1 + (-1/2 + i√3/2) + (-1/2 - i√3/2)
+           = 1 - 1/2 - 1/2 + i(√3/2 - √3/2)
+           = 0 + 0i = 0  ✓
+                    </div>
+                  </div>
+                </li>
+                <li class="step-item">
+                  <div class="step-ball sb-coral">5</div>
+                  <div class="step-body">
+                    <strong>Prove Product = 1</strong>
+                    <div class="math-env" style="margin-top:8px;">
+1 · ω · ω² = ω³ = (e^(2πi/3))³ = e^(2πi) = cos(2π) + i sin(2π) = 1  ✓
+                    </div>
+                  </div>
+                </li>
+              </ul>
+            </div>
+
+            <div class="answer-final">
+              <div class="af-label">✅ RESULTS TO MEMORIZE</div>
+              <p>Three cube roots of unity: <strong>1, ω = (-1+i√3)/2, ω² = (-1-i√3)/2</strong><br>
+              Sum: <strong>1 + ω + ω² = 0</strong> (always!)<br>
+              Product: <strong>1 · ω · ω² = 1</strong><br>
+              Key: <strong>ω³ = 1</strong> and <strong>ω is a root of z²+z+1=0</strong></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- PYQ 3 -->
+        <div class="pyq-card pyq-blue" onclick="toggle(this)">
+          <div class="pyq-q">
+            <div class="pyq-num">Q3</div>
+            <div class="pyq-q-text">
+              <div class="pyq-question">Find all fourth roots of (-1) and represent them on an Argand diagram.</div>
+              <div class="pyq-tags">
+                <span class="tag tag-fire">🟡 High Priority</span>
+                <span class="tag tag-year">Asked 2020, 2022</span>
+                <span class="tag tag-marks">7 Marks</span>
+              </div>
+            </div>
+            <div class="pyq-toggle">▾</div>
+          </div>
+          <div class="pyq-solution">
+            <div class="sol-section">
+              <div class="sol-head">✏️ Step-by-Step Solution</div>
+              <ul class="steps-list">
+                <li class="step-item">
+                  <div class="step-ball sb-blue">1</div>
+                  <div class="step-body">
+                    <strong>Write -1 in polar form</strong>
+                    <div class="math-env" style="margin-top:8px;">
+-1 = cos(π) + i sin(π) = cos(π + 2kπ) + i sin(π + 2kπ)
+
+(r = 1, θ = π, and we add 2kπ for general form)
+                    </div>
+                  </div>
+                </li>
+                <li class="step-item">
+                  <div class="step-ball sb-blue">2</div>
+                  <div class="step-body">
+                    <strong>Apply De Moivre with power 1/4</strong>
+                    <div class="math-env" style="margin-top:8px;">
+z = (-1)^(1/4) = cos((π + 2kπ)/4) + i sin((π + 2kπ)/4)
+                    </div>
+                  </div>
+                </li>
+                <li class="step-item">
+                  <div class="step-ball sb-blue">3</div>
+                  <div class="step-body">
+                    <strong>Substitute k = 0, 1, 2, 3</strong>
+                    <div class="math-env" style="margin-top:8px;">
+k=0: z₁ = cos(π/4) + i sin(π/4) = 1/√2 + i/√2
+
+k=1: z₂ = cos(3π/4) + i sin(3π/4) = -1/√2 + i/√2
+
+k=2: z₃ = cos(5π/4) + i sin(5π/4) = -1/√2 - i/√2
+
+k=3: z₄ = cos(7π/4) + i sin(7π/4) = 1/√2 - i/√2
+                    </div>
+                  </div>
+                </li>
+                <li class="step-item">
+                  <div class="step-ball sb-blue">4</div>
+                  <div class="step-body">
+                    <strong>Argand Diagram description</strong>
+                    <span>4 points equally spaced at 90° intervals on a circle of radius 1, starting at 45° (π/4). Like a compass with NE, NW, SW, SE directions.</span>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="answer-final">
+              <div class="af-label">✅ FOUR ROOTS</div>
+              <p>z = ±(1±i)/√2 — all four combinations of ± signs</p>
+            </div>
+            <div class="pro-tip">
+              <div class="pt-label">💡 PATTERN TRICK</div>
+              <p>For the 4th roots of 1: they are 1, i, -1, -i (the axes points).<br>
+              For 4th roots of -1: rotate all by 45° → you get the diagonal points above.<br>
+              <strong>General rule: nth roots of 1 are equally spaced at 2π/n, starting at 0°. Roots of -1 start at π/n.</strong></p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ──────────── 1D: REAL & IMAGINARY PARTS ──────────── -->
+    <div id="realimag" class="concept-block">
+      <div class="concept-title">
+        <div class="ct-icon ct-blue">✂️</div>
+        <div>
+          <h3>Separating Real &amp; Imaginary Parts</h3>
+          <div class="ct-sub">log(a+ib), sin(a+ib), cos(a+ib), sinh, cosh — all use the same 2 tricks</div>
+        </div>
+      </div>
+
+      <div class="explain-box eb-toddler" style="margin-bottom:16px;">
+        <div class="eb-head">🧒 The Recipe Book Analogy</div>
+        <p>When you write log(a+ib) or sin(a+ib), you have a <strong>complex argument inside a function</strong>. To separate them, you just need 2 tools:<br>
+        <strong>Tool 1:</strong> Write a+ib in polar form as r·e^(iθ)<br>
+        <strong>Tool 2:</strong> Know the "expansion formulas" for sin/cos/log of complex numbers<br>
+        After applying the formula, group terms with 'i' (imaginary) and without 'i' (real). Done!</p>
+      </div>
+
+      <div class="mega-formula" style="margin-bottom:20px;">
+        <h4>🧮 Master Formulas — Memorize ALL of these</h4>
+        <div class="mf-grid">
+          <div class="mf-item">
+            <div class="mf-name">log of complex</div>
+            <div class="mf-val">log(a+ib) = ½log(a²+b²) + i·tan⁻¹(b/a)
+Real = ½log(a²+b²)
+Imag = tan⁻¹(b/a)</div>
+          </div>
+          <div class="mf-item">
+            <div class="mf-name">sin of complex</div>
+            <div class="mf-val">sin(α+iβ) = sinα·coshβ + i·cosα·sinhβ
+Real = sinα·coshβ
+Imag = cosα·sinhβ</div>
+          </div>
+          <div class="mf-item">
+            <div class="mf-name">cos of complex</div>
+            <div class="mf-val">cos(α+iβ) = cosα·coshβ - i·sinα·sinhβ
+Real = cosα·coshβ
+Imag = -sinα·sinhβ</div>
+          </div>
+          <div class="mf-item">
+            <div class="mf-name">hyperbolic defs</div>
+            <div class="mf-val">sinh(x) = (eˣ - e⁻ˣ)/2
+cosh(x) = (eˣ + e⁻ˣ)/2
+sin(iθ) = i·sinh(θ)
+cos(iθ) = cosh(θ)</div>
+          </div>
+          <div class="mf-item">
+            <div class="mf-name">tan of complex</div>
+            <div class="mf-val">tan(α+iβ) = [sin2α + i·sinh2β] / [cos2α + cosh2β]</div>
+          </div>
+          <div class="mf-item">
+            <div class="mf-name">exponential</div>
+            <div class="mf-val">e^(a+ib) = eᵃ(cosb + i sinb)
+Real = eᵃ·cosb
+Imag = eᵃ·sinb</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pattern-box">
+        <div class="pb-head"><span>🎯</span> HOW TO RECOGNISE & SOLVE INSTANTLY</div>
+        <div class="pattern-row">
+          <div class="pr-if">SEE log(a+ib)</div>
+          <div class="pr-then">DIRECTLY use: Real = ½log(a²+b²), Imag = tan⁻¹(b/a). <em>No steps needed, just plug in!</em></div>
+        </div>
+        <div class="pattern-row">
+          <div class="pr-if">SEE sin(A+iB) or cos(A+iB)</div>
+          <div class="pr-then">Use the expansion formulas above. <em>Identify α and β, plug in to the formula.</em></div>
+        </div>
+        <div class="pattern-row">
+          <div class="pr-if">SEE (a+ib)^(c+id)</div>
+          <div class="pr-then">Write as e^((c+id)·log(a+ib)), then expand. <em>First find log(a+ib), multiply by (c+id), then use e^(x+iy) formula.</em></div>
+        </div>
+      </div>
+
+      <div class="pyq-section">
+        <div class="pyq-label">📋 PYQ Questions — Real & Imaginary Parts</div>
+
+        <div class="pyq-card pyq-mint" onclick="toggle(this)">
+          <div class="pyq-q">
+            <div class="pyq-num">Q4</div>
+            <div class="pyq-q-text">
+              <div class="pyq-question">Separate log(3 + 4i) into real and imaginary parts. Also separate (1+i)^(1+i).</div>
+              <div class="pyq-tags">
+                <span class="tag tag-fire">🟡 High Priority</span>
+                <span class="tag tag-year">Asked 2021, 2022</span>
+                <span class="tag tag-marks">7 Marks</span>
+              </div>
+            </div>
+            <div class="pyq-toggle">▾</div>
+          </div>
+          <div class="pyq-solution">
+            <div class="sol-section">
+              <div class="sol-head">✏️ Part A: log(3+4i)</div>
+              <ul class="steps-list">
+                <li class="step-item">
+                  <div class="step-ball sb-mint">1</div>
+                  <div class="step-body">
+                    <strong>Apply the log formula directly</strong>
+                    <div class="math-env" style="margin-top:8px;">
+log(a+ib) = ½log(a²+b²) + i·tan⁻¹(b/a)
+
+Here a=3, b=4:
+log(3+4i) = ½log(3²+4²) + i·tan⁻¹(4/3)
+           = ½log(25) + i·tan⁻¹(4/3)
+           = ½log(25) + i·tan⁻¹(4/3)
+                    </div>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="answer-final">
+              <div class="af-label">✅ PART A ANSWER</div>
+              <p>Real part = ½ log 25 = log 5<br>Imaginary part = tan⁻¹(4/3)</p>
+            </div>
+
+            <div class="sol-section" style="margin-top:20px;">
+              <div class="sol-head">✏️ Part B: (1+i)^(1+i) — the trickier one</div>
+              <ul class="steps-list">
+                <li class="step-item">
+                  <div class="step-ball sb-mint">1</div>
+                  <div class="step-body">
+                    <strong>Write as exponential: (1+i)^(1+i) = e^((1+i)·log(1+i))</strong>
+                  </div>
+                </li>
+                <li class="step-item">
+                  <div class="step-ball sb-mint">2</div>
+                  <div class="step-body">
+                    <strong>Find log(1+i): here a=1, b=1</strong>
+                    <div class="math-env" style="margin-top:8px;">
+log(1+i) = ½log(1²+1²) + i·tan⁻¹(1/1)
+         = ½log(2) + i·(π/4)
+                    </div>
+                  </div>
+                </li>
+                <li class="step-item">
+                  <div class="step-ball sb-mint">3</div>
+                  <div class="step-body">
+                    <strong>Multiply (1+i) × log(1+i)</strong>
+                    <div class="math-env" style="margin-top:8px;">
+(1+i)(½log2 + iπ/4)
+= ½log2 + iπ/4 + i·½log2 + i²π/4
+= ½log2 - π/4 + i(π/4 + ½log2)
+                    </div>
+                  </div>
+                </li>
+                <li class="step-item">
+                  <div class="step-ball sb-mint">4</div>
+                  <div class="step-body">
+                    <strong>Now use e^(x+iy) = eˣ(cosy + i siny)</strong>
+                    <div class="math-env" style="margin-top:8px;">
+x = ½log2 - π/4,  y = π/4 + ½log2
+
+(1+i)^(1+i) = e^(½log2 - π/4) · [cos(π/4 + ½log2) + i sin(π/4 + ½log2)]
+                    </div>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="answer-final">
+              <div class="af-label">✅ PART B ANSWER</div>
+              <p>Real = e^(½log2 - π/4) · cos(π/4 + ½log2)<br>Imaginary = e^(½log2 - π/4) · sin(π/4 + ½log2)</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ──────────── 1E: C+iS METHOD ──────────── -->
+    <div id="cis" class="concept-block">
+      <div class="concept-title">
+        <div class="ct-icon ct-lav">∑</div>
+        <div>
+          <h3>C+iS Method for Summing Series</h3>
+          <div class="ct-sub">THE smartest trick in Complex Numbers — always asked in ESE</div>
+        </div>
+      </div>
+
+      <div class="explain-grid">
+        <div class="explain-box eb-toddler">
+          <div class="eb-head">🧒 Why does C+iS work?</div>
+          <p>Suppose you're asked to sum: cosθ + cos2θ + cos3θ + ...<br>
+          Alone, this is hard. BUT if you create a "sister series" with sin, <strong>together they form e^(iθ) + e^(2iθ) + ...</strong> which is just a <strong>geometric series</strong>! Easy to sum! After summing, take real part → you get the cosine sum. Take imaginary part → you get the sine sum. <em>Two birds, one geometric series!</em></p>
+        </div>
+        <div class="explain-box eb-formal">
+          <div class="eb-head">📖 The Method — 5 Fixed Steps</div>
+          <p><strong>Step 1:</strong> Define C = cos series, S = sin series<br>
+          <strong>Step 2:</strong> Form C + iS (a geometric series in e^(iθ))<br>
+          <strong>Step 3:</strong> Sum using GP formula: S = a(1−rⁿ)/(1−r)<br>
+          <strong>Step 4:</strong> Rationalize denominator (multiply by conjugate)<br>
+          <strong>Step 5:</strong> Separate real and imaginary parts</p>
+        </div>
+      </div>
+
+      <div class="formula-highlight">
+        <div class="fh-title">🔑 Key: Geometric Series Formula</div>
+        Sum of GP: a + ar + ar² + ... + arⁿ⁻¹ = a(1 - rⁿ)/(1 - r)
+
+        In C+iS: a = e^(iθ), r = e^(iθ)
+        C + iS = e^(iθ)[1 - e^(inθ)] / [1 - e^(iθ)]
+
+        KEY TRICK to simplify:
+        e^(iA) - e^(iB) = e^(i(A+B)/2) · 2i·sin((A-B)/2)
+        1 - e^(iA) = -e^(iA/2) · 2i·sin(A/2)
+      </div>
+
+      <div class="pyq-section">
+        <div class="pyq-label">📋 PYQ Questions — C+iS Method</div>
+
+        <div class="pyq-card pyq-lav" onclick="toggle(this)">
+          <div class="pyq-q">
+            <div class="pyq-num">Q5</div>
+            <div class="pyq-q-text">
+              <div class="pyq-question">Find the sum: C = cosθ + cos2θ + cos3θ + ... + cosnθ using C+iS method</div>
+              <div class="pyq-tags">
+                <span class="tag tag-fire">🔥 MUST DO</span>
+                <span class="tag tag-year">Asked 2019, 2020, 2023</span>
+                <span class="tag tag-marks">14 Marks</span>
+              </div>
+            </div>
+            <div class="pyq-toggle">▾</div>
+          </div>
+          <div class="pyq-solution">
+            <div class="sol-section">
+              <div class="sol-head">✏️ Full Solution</div>
+              <ul class="steps-list">
+                <li class="step-item">
+                  <div class="step-ball sb-lav">1</div>
+                  <div class="step-body">
+                    <strong>Define C and S, form C+iS</strong>
+                    <div class="math-env" style="margin-top:8px;">
+C = cosθ + cos2θ + ... + cosnθ
+S = sinθ + sin2θ + ... + sinnθ
+
+C + iS = (cosθ+isinθ) + (cos2θ+isin2θ) + ... + (cosnθ+isinnθ)
+       = e^(iθ) + e^(2iθ) + ... + e^(niθ)
+                    </div>
+                  </div>
+                </li>
+                <li class="step-item">
+                  <div class="step-ball sb-lav">2</div>
+                  <div class="step-body">
+                    <strong>This is a GP: first term a = e^(iθ), ratio r = e^(iθ), n terms</strong>
+                    <div class="math-env" style="margin-top:8px;">
+C + iS = e^(iθ) · [1 - e^(niθ)] / [1 - e^(iθ)]
+                    </div>
+                  </div>
+                </li>
+                <li class="step-item">
+                  <div class="step-ball sb-lav">3</div>
+                  <div class="step-body">
+                    <strong>Factor e^(inθ/2) from numerator, e^(iθ/2) from denominator</strong>
+                    <div class="math-env" style="margin-top:8px;">
+Numerator: 1 - e^(niθ) = -e^(inθ/2)[e^(inθ/2) - e^(-inθ/2)]
+                       = -e^(inθ/2) · 2i·sin(nθ/2)
+
+Denominator: 1 - e^(iθ) = -e^(iθ/2) · 2i·sin(θ/2)
+
+C + iS = e^(iθ) · [-e^(inθ/2)·2i·sin(nθ/2)] / [-e^(iθ/2)·2i·sin(θ/2)]
+       = e^(iθ) · e^(inθ/2) · sin(nθ/2) / [e^(iθ/2) · sin(θ/2)]
+       = e^(iθ/2 + inθ/2) · sin(nθ/2) / sin(θ/2)
+       = e^(i(n+1)θ/2) · sin(nθ/2) / sin(θ/2)
+                    </div>
+                  </div>
+                </li>
+                <li class="step-item">
+                  <div class="step-ball sb-lav">4</div>
+                  <div class="step-body">
+                    <strong>Expand e^(i(n+1)θ/2) = cos((n+1)θ/2) + i sin((n+1)θ/2) and separate</strong>
+                    <div class="math-env" style="margin-top:8px;">
+C + iS = [sin(nθ/2)/sin(θ/2)] · [cos((n+1)θ/2) + i sin((n+1)θ/2)]
+
+Comparing REAL parts:
+C = [sin(nθ/2) / sin(θ/2)] · cos[(n+1)θ/2]
+
+Comparing IMAGINARY parts:
+S = [sin(nθ/2) / sin(θ/2)] · sin[(n+1)θ/2]
+                    </div>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="answer-final">
+              <div class="af-label">✅ FINAL ANSWERS</div>
+              <p><strong>cosθ + cos2θ + ... + cosnθ = [sin(nθ/2) / sin(θ/2)] · cos[(n+1)θ/2]</strong><br>
+              <strong>sinθ + sin2θ + ... + sinnθ = [sin(nθ/2) / sin(θ/2)] · sin[(n+1)θ/2]</strong></p>
+            </div>
+            <div class="pro-tip">
+              <div class="pt-label">💡 EXAM SHORTCUT FOR C+iS</div>
+              <p>The factoring step (Step 3) is the hardest. Remember this pattern:<br>
+              <strong>1 − e^(iA) = −e^(iA/2) × 2i × sin(A/2)</strong><br>
+              This one identity is the key to ALL C+iS problems. Write it on your rough sheet first!</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ─────────────────── UNIT DIVIDER ─────────────────── -->
+    <div class="unit-divider"><span>End of Unit I · Beginning of Unit II</span></div>
+
+    <!-- ══════════════════════════════════════════════════════════════
+         UNIT II
+    ══════════════════════════════════════════════════════════════ -->
+
+    <div id="unit2-header" class="unit-header u2">
+      <div class="unit-num">II</div>
+      <div class="unit-info">
+        <h2>Sequences, Series &amp; Convergence</h2>
+        <p>Comparison · D'Alembert · Raabe's · Cauchy's Root · Power Series &amp; Radius of Convergence · 12 Hrs</p>
+        <div class="topic-chips">
+          <span class="tc tc-mint">D'Alembert Ratio</span>
+          <span class="tc tc-coral">Raabe's Test</span>
+          <span class="tc tc-mint">Cauchy Root</span>
+          <span class="tc tc-blue">Power Series ROC</span>
+          <span class="tc tc-gold">Comparison Test</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ──────────── 2A: WHAT IS CONVERGENCE ──────────── -->
+    <div id="what-series" class="concept-block">
+      <div class="concept-title">
+        <div class="ct-icon ct-mint">📐</div>
+        <div>
+          <h3>What is a Series? What is Convergence?</h3>
+          <div class="ct-sub">The foundation — don't skip this even if you're in a hurry</div>
+        </div>
+      </div>
+
+      <div class="explain-grid">
+        <div class="explain-box eb-toddler">
+          <div class="eb-head">🧒 Infinite Sum Analogy</div>
+          <p>Imagine walking toward a wall, but each step is <strong>half the previous one</strong>: 1m, ½m, ¼m, ⅛m... You keep walking forever, but you <strong>never go past 2m</strong>! That's a convergent series — adding infinitely many terms gives a finite answer. But if each step is 1m, 1m, 1m... forever → you never stop → that's <strong>divergent</strong>. The test is: <em>does the sum settle down or blow up?</em></p>
+        </div>
+        <div class="explain-box eb-formal">
+          <div class="eb-head">📖 Formal Definition</div>
+          <p>A series Σuₙ = u₁ + u₂ + u₃ + ... is called <strong>convergent</strong> if the partial sums Sₙ = u₁+u₂+...+uₙ tend to a finite limit as n→∞. It's <strong>divergent</strong> if Sₙ→∞ or oscillates. A <strong>necessary condition</strong> for convergence: uₙ→0 as n→∞ (but NOT sufficient — the harmonic series 1+½+⅓+¼+... diverges even though uₙ→0!)</p>
+        </div>
+      </div>
+
+      <div class="warning-box">
+        <div class="w-head">⚠️ COMMON EXAM TRAP</div>
+        If uₙ → 0, that does NOT guarantee convergence! The harmonic series Σ(1/n) = 1 + 1/2 + 1/3 + ... DIVERGES even though 1/n → 0. Always use a proper test — never just check if uₙ→0.
+      </div>
+
+      <div class="flowchart">
+        <h5>🗺️ WHICH TEST TO USE — Decision Flowchart</h5>
+        <div class="fc-flow">
+          <div class="fc-node start">You have a series Σuₙ. Which test to use?</div>
+          <div class="fc-arrow">↓</div>
+          <div class="fc-node decision">Does the series contain: <strong>factorial (n!), exponential (aⁿ), or products like n·(n-1)·...?</strong></div>
+          <div class="fc-arrow">↓</div>
+          <div class="fc-branch">
+            <div class="fc-side">
+              <div class="fc-side-label">YES → Try Ratio Test first</div>
+              <div class="fc-arrow">↓</div>
+              <div class="fc-node decision">Ratio Test gives L=1 (fails)?</div>
+              <div class="fc-arrow">↓</div>
+              <div class="fc-node next">Use Raabe's Test instead</div>
+            </div>
+            <div class="fc-side">
+              <div class="fc-side-label">Contains nth power like (2n/(3n+1))ⁿ</div>
+              <div class="fc-arrow">↓</div>
+              <div class="fc-node answer-yes">Use Cauchy's Root Test</div>
+            </div>
+          </div>
+          <div class="fc-arrow" style="margin-top:8px;">↓</div>
+          <div class="fc-node decision">Simple algebraic terms like n²/(n³+1)?</div>
+          <div class="fc-arrow">↓</div>
+          <div class="fc-node answer-yes">Comparison Test or Limit Comparison with known series (like 1/n, 1/n²)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ──────────── 2B: RATIO TEST ──────────── -->
+    <div id="ratio" class="concept-block">
+      <div class="concept-title">
+        <div class="ct-icon ct-mint">📊</div>
+        <div>
+          <h3>D'Alembert's Ratio Test</h3>
+          <div class="ct-sub">The KING of convergence tests — appears 100% of the time in CSVTU exams</div>
+        </div>
+      </div>
+
+      <div class="explain-grid">
+        <div class="explain-box eb-toddler">
+          <div class="eb-head">🧒 The Shrinking Steps Analogy</div>
+          <p>You're adding steps to a staircase. The Ratio Test asks: <strong>"Is each new step shorter than the last?"</strong> If each step is less than some fraction L of the previous one (L &lt; 1), you'll never reach infinity — <strong>convergent!</strong> If each step is bigger (L &gt; 1), you climb forever — <strong>divergent!</strong> If exactly equal (L=1), we can't tell — need another test.</p>
+        </div>
+        <div class="explain-box eb-formal">
+          <div class="eb-head">📖 The Statement</div>
+          <p>For series Σuₙ of positive terms, compute:<br>
+          <strong>L = lim(n→∞) |u(n+1)/uₙ|</strong><br><br>
+          • If L &lt; 1 → Series <strong>CONVERGES</strong><br>
+          • If L &gt; 1 → Series <strong>DIVERGES</strong><br>
+          • If L = 1 → Test <strong>FAILS</strong>, try Raabe's<br><br>
+          Works best when uₙ has <strong>factorials, exponentials, or products</strong>.</p>
+        </div>
+      </div>
+
+      <div class="pattern-box">
+        <div class="pb-head"><span>🎯</span> PATTERN RECOGNITION — Ratio Test Questions</div>
+        <div class="pattern-row">
+          <div class="pr-if">CLUE 1</div>
+          <div class="pr-then">Series contains <em>n! (factorial)</em> → <strong>Definitely Ratio Test</strong>. Factorial in ratio simplifies beautifully: (n+1)!/n! = (n+1)</div>
+        </div>
+        <div class="pattern-row">
+          <div class="pr-if">CLUE 2</div>
+          <div class="pr-then">Series has terms like <em>xⁿ, 2ⁿ, 3ⁿ</em> → <strong>Ratio Test</strong>. The exponential cancels neatly.</div>
+        </div>
+        <div class="pattern-row">
+          <div class="pr-if">CLUE 3</div>
+          <div class="pr-then">Series of form <em>Σ n·xⁿ/aⁿ</em> → <strong>Ratio Test to find radius of convergence</strong></div>
+        </div>
+        <div class="pattern-row">
+          <div class="pr-if">WATCH OUT</div>
+          <div class="pr-then">Series like Σ [1·3·5...(2n-1)] / [2·4·6...(2n)] → Ratio Test gives L=1 → <em>MUST use Raabe's!</em></div>
+        </div>
+      </div>
+
+      <div class="pyq-section">
+        <div class="pyq-label">📋 PYQ Questions — Ratio Test</div>
+
+        <div class="pyq-card pyq-mint" onclick="toggle(this)">
+          <div class="pyq-q">
+            <div class="pyq-num">Q6</div>
+            <div class="pyq-q-text">
+              <div class="pyq-question">Test the convergence of: Σ n!/nⁿ</div>
+              <div class="pyq-tags">
+                <span class="tag tag-fire">🔥 MUST DO</span>
+                <span class="tag tag-year">Classic CSVTU — every year</span>
+                <span class="tag tag-marks">7 Marks</span>
+              </div>
+            </div>
+            <div class="pyq-toggle">▾</div>
+          </div>
+          <div class="pyq-solution">
+            <div class="sol-section">
+              <div class="sol-head">🧒 Why is this a Ratio Test question?</div>
+              <p style="font-size:14px;color:var(--text2);">It has <strong>n!</strong> (factorial) — that's the #1 signal for Ratio Test. The factorial in numerator/denominator will simplify perfectly when you form uₙ₊₁/uₙ.</p>
+            </div>
+            <div class="sol-section">
+              <div class="sol-head">✏️ Step-by-Step</div>
+              <ul class="steps-list">
+                <li class="step-item">
+                  <div class="step-ball sb-mint">1</div>
+                  <div class="step-body">
+                    <strong>Write uₙ and uₙ₊₁</strong>
+                    <div class="math-env" style="margin-top:8px;">
+uₙ = n!/nⁿ
+
+uₙ₊₁ = (n+1)!/(n+1)^(n+1)
+                    </div>
+                  </div>
+                </li>
+                <li class="step-item">
+                  <div class="step-ball sb-mint">2</div>
+                  <div class="step-body">
+                    <strong>Form uₙ₊₁/uₙ (this is the ONLY calculation)</strong>
+                    <div class="math-env" style="margin-top:8px;">
+uₙ₊₁/uₙ = [(n+1)!/(n+1)^(n+1)] × [nⁿ/n!]
+
+KEY STEP: (n+1)!/n! = (n+1)   ← factorial simplification!
+
+= (n+1) × nⁿ / (n+1)^(n+1)
+= nⁿ / (n+1)ⁿ
+= [n/(n+1)]ⁿ
+= [1 / (1 + 1/n)]ⁿ
+                    </div>
+                  </div>
+                </li>
+                <li class="step-item">
+                  <div class="step-ball sb-mint">3</div>
+                  <div class="step-body">
+                    <strong>Take the limit (use the standard limit result)</strong>
+                    <div class="math-env" style="margin-top:8px;">
+L = lim(n→∞) [1/(1+1/n)]ⁿ
+
+STANDARD RESULT: lim(n→∞) (1 + 1/n)ⁿ = e
+Therefore: lim(n→∞) [1/(1+1/n)]ⁿ = 1/e ≈ 0.368
+
+L = 1/e &lt; 1
+                    </div>
+                  </div>
+                </li>
+                <li class="step-item">
+                  <div class="step-ball sb-mint">4</div>
+                  <div class="step-body">
+                    <strong>State the conclusion</strong>
+                    <span>Since L = 1/e &lt; 1, by D'Alembert's Ratio Test, the series <strong>CONVERGES</strong>.</span>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="answer-final">
+              <div class="af-label">✅ ANSWER</div>
+              <p>Σ n!/nⁿ <strong>CONVERGES</strong> (L = 1/e &lt; 1 by Ratio Test)</p>
+            </div>
+            <div class="pro-tip">
+              <div class="pt-label">💡 THE KEY RESULT TO MEMORIZE</div>
+              <p><strong>lim(n→∞) (1 + 1/n)ⁿ = e</strong> — This appears in ALMOST EVERY ratio test problem involving nⁿ. Recognizing it saves you 3 minutes in the exam!</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="pyq-card pyq-gold" onclick="toggle(this)">
+          <div class="pyq-q">
+            <div class="pyq-num">Q7</div>
+            <div class="pyq-q-text">
+              <div class="pyq-question">Test convergence of: Σ (n² · 2ⁿ) / n!</div>
+              <div class="pyq-tags">
+                <span class="tag tag-fire">🟡 High Priority</span>
+                <span class="tag tag-year">2022, 2023</span>
+                <span class="tag tag-marks">7 Marks</span>
+              </div>
+            </div>
+            <div class="pyq-toggle">▾</div>
+          </div>
+          <div class="pyq-solution">
+            <div class="sol-section">
+              <div class="sol-head">✏️ Step-by-Step</div>
+              <ul class="steps-list">
+                <li class="step-item">
+                  <div class="step-ball sb-gold">1</div>
+                  <div class="step-body">
+                    <strong>Write uₙ and uₙ₊₁</strong>
+                    <div class="math-env" style="margin-top:8px;">
+uₙ = n²·2ⁿ/n!
+
+uₙ₊₁ = (n+1)²·2^(n+1)/(n+1)!
+                    </div>
+                  </div>
+                </li>
+                <li class="step-item">
+                  <div class="step-ball sb-gold">2</div>
+                  <div class="step-body">
+                    <strong>Form the ratio and simplify</strong>
+                    <div class="math-env" style="margin-top:8px;">
+uₙ₊₁/uₙ = [(n+1)²·2^(n+1)/(n+1)!] × [n!/(n²·2ⁿ)]
+
+= [(n+1)²/n²] × [2^(n+1)/2ⁿ] × [n!/(n+1)!]
+
+= [(n+1)²/n²] × 2 × [1/(n+1)]
+
+= 2(n+1)/n²
+                    </div>
+                  </div>
+                </li>
+                <li class="step-item">
+                  <div class="step-ball sb-gold">3</div>
+                  <div class="step-body">
+                    <strong>Take limit</strong>
+                    <div class="math-env" style="margin-top:8px;">
+L = lim(n→∞) 2(n+1)/n² = lim(n→∞) 2/n = 0
+
+L = 0 &lt; 1  →  CONVERGES
+                    </div>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="answer-final">
+              <div class="af-label">✅ ANSWER</div>
+              <p>Series <strong>CONVERGES</strong> (L = 0 &lt; 1)</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ──────────── 2C: RAABE'S TEST ──────────── -->
+    <div id="raabe" class="concept-block">
+      <div class="concept-title">
+        <div class="ct-icon ct-coral">🔬</div>
+        <div>
+          <h3>Raabe's Test — The Backup to Ratio Test</h3>
+          <div class="ct-sub">Use ONLY when D'Alembert gives L=1. Often asked with product-type series.</div>
+        </div>
+      </div>
+
+      <div class="explain-box eb-toddler" style="margin-bottom:16px;">
+        <div class="eb-head">🧒 Why do we need Raabe's Test?</div>
+        <p>When the Ratio Test gives L=1, it's like a judge saying "I can't decide!" Raabe's test is the <strong>higher court</strong> — it looks MORE carefully at how the ratio approaches 1. Specifically, it checks whether <strong>n × (1 - ratio)</strong> converges to something greater or less than 1. If it's &gt;1, the series converges. If &lt;1, it diverges.</p>
+      </div>
+
+      <div class="formula-highlight">
+        <div class="fh-title">🔬 Raabe's Test — When to use & How</div>
+        USE ONLY WHEN Ratio Test gives L = 1.
+
+        Compute: R = lim(n→∞) n · [1 - u(n+1)/uₙ]
+
+        • If R > 1  →  Series CONVERGES
+        • If R < 1  →  Series DIVERGES
+        • If R = 1  →  Test FAILS (use logarithmic test — rare in exams)
+      </div>
+
+      <div class="pattern-box">
+        <div class="pb-head"><span>🎯</span> IDENTIFYING RAABE'S TEST QUESTIONS</div>
+        <div class="pattern-row">
+          <div class="pr-if">SIGNAL</div>
+          <div class="pr-then">Series has terms like <em>[1·3·5...(2n-1)] / [2·4·6...(2n)]</em> — products of odd over even numbers. Ratio test gives L=1, so Raabe's is needed.</div>
+        </div>
+        <div class="pattern-row">
+          <div class="pr-if">SIGNAL</div>
+          <div class="pr-then">Question says "test for convergence" and the series ratio simplifies to something that → 1. The examiner WANTS you to apply Raabe's next.</div>
+        </div>
+        <div class="pattern-row">
+          <div class="pr-if">TRICK</div>
+          <div class="pr-then">The formula n(1 - uₙ₊₁/uₙ) — first compute <em>1 - uₙ₊₁/uₙ</em>, THEN multiply by n, THEN take limit. Don't try to shortcut!</div>
+        </div>
+      </div>
+
+      <div class="pyq-section">
+        <div class="pyq-label">📋 PYQ Questions — Raabe's Test</div>
+
+        <div class="pyq-card pyq-coral" onclick="toggle(this)">
+          <div class="pyq-q">
+            <div class="pyq-num">Q8</div>
+            <div class="pyq-q-text">
+              <div class="pyq-question">Test convergence: Σ [1·3·5·...·(2n-1)] / [2·4·6·...·(2n)]</div>
+              <div class="pyq-tags">
+                <span class="tag tag-fire">🔥 Classic — Every Year</span>
+                <span class="tag tag-year">2019, 2020, 2021, 2022</span>
+                <span class="tag tag-marks">7–14 Marks</span>
+              </div>
+            </div>
+            <div class="pyq-toggle">▾</div>
+          </div>
+          <div class="pyq-solution">
+            <div class="sol-section">
+              <div class="sol-head">✏️ Step-by-Step</div>
+              <ul class="steps-list">
+                <li class="step-item">
+                  <div class="step-ball sb-coral">1</div>
+                  <div class="step-body">
+                    <strong>Write uₙ and uₙ₊₁</strong>
+                    <div class="math-env" style="margin-top:8px;">
+uₙ = [1·3·5·...·(2n-1)] / [2·4·6·...·(2n)]
+
+uₙ₊₁ = [1·3·5·...·(2n-1)·(2n+1)] / [2·4·6·...·(2n)·(2n+2)]
+                    </div>
+                  </div>
+                </li>
+                <li class="step-item">
+                  <div class="step-ball sb-coral">2</div>
+                  <div class="step-body">
+                    <strong>Form ratio uₙ₊₁/uₙ (only NEW terms remain!)</strong>
+                    <div class="math-env" style="margin-top:8px;">
+uₙ₊₁/uₙ = (2n+1)/(2n+2)
+
+KEY SHORTCUT: When products differ only in the last term,
+the ratio = (last term of numerator's next) / (last term of denominator's next)
+                    </div>
+                  </div>
+                </li>
+                <li class="step-item">
+                  <div class="step-ball sb-coral">3</div>
+                  <div class="step-body">
+                    <strong>Apply Ratio Test first</strong>
+                    <div class="math-env" style="margin-top:8px;">
+L = lim(n→∞) (2n+1)/(2n+2) = lim(n→∞) (2 + 1/n)/(2 + 2/n) = 2/2 = 1
+
+L = 1 → Ratio Test FAILS. Use Raabe's Test.
+                    </div>
+                  </div>
+                </li>
+                <li class="step-item">
+                  <div class="step-ball sb-coral">4</div>
+                  <div class="step-body">
+                    <strong>Apply Raabe's Test: compute n(1 - uₙ₊₁/uₙ)</strong>
+                    <div class="math-env" style="margin-top:8px;">
+1 - uₙ₊₁/uₙ = 1 - (2n+1)/(2n+2)
+             = (2n+2 - 2n-1)/(2n+2)
+             = 1/(2n+2)
+
+n × [1 - uₙ₊₁/uₙ] = n/(2n+2) = n/(2(n+1))
+                    </div>
+                  </div>
+                </li>
+                <li class="step-item">
+                  <div class="step-ball sb-coral">5</div>
+                  <div class="step-body">
+                    <strong>Take the limit</strong>
+                    <div class="math-env" style="margin-top:8px;">
+R = lim(n→∞) n/(2(n+1)) = lim(n→∞) 1/(2(1+1/n)) = 1/2
+
+R = 1/2 &lt; 1  →  Series DIVERGES
+                    </div>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="answer-final">
+              <div class="af-label">✅ ANSWER</div>
+              <p>Series <strong>DIVERGES</strong> (Raabe's constant = 1/2 &lt; 1)</p>
+            </div>
+            <div class="pro-tip">
+              <div class="pt-label">💡 TRICK FOR PRODUCT SERIES</div>
+              <p>For series Σ [product of numerators] / [product of denominators], the ratio uₙ₊₁/uₙ = <strong>(next numerator term) / (next denominator term)</strong>. You don't need to write out the full products — just identify what term gets added when you go from n to n+1.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ──────────── 2D: CAUCHY ROOT ──────────── -->
+    <div id="root" class="concept-block">
+      <div class="concept-title">
+        <div class="ct-icon ct-blue">√</div>
+        <div>
+          <h3>Cauchy's Root Test</h3>
+          <div class="ct-sub">Use when terms are raised to the nth power — quick and clean</div>
+        </div>
+      </div>
+
+      <div class="explain-box eb-toddler" style="margin-bottom:16px;">
+        <div class="eb-head">🧒 The nth Root Test</div>
+        <p>When each term uₙ looks like something raised to the power n (like (f(n))ⁿ), taking the nth root is the most natural operation. The Root Test asks: <strong>does (uₙ)^(1/n) approach something less than 1?</strong> If yes → converges. It's like asking "what's the average factor per term?"</p>
+      </div>
+
+      <div class="formula-highlight">
+        <div class="fh-title">√ Cauchy's Root Test</div>
+        Compute: L = lim(n→∞) (uₙ)^(1/n)
+
+        • If L < 1  →  CONVERGES
+        • If L > 1  →  DIVERGES
+        • If L = 1  →  FAILS
+
+        WHEN TO USE: uₙ has the form (f(n))ⁿ  e.g.  (n/(2n+1))ⁿ, (logn)ⁿ etc.
+      </div>
+
+      <div class="pyq-section">
+        <div class="pyq-label">📋 PYQ Questions — Root Test</div>
+
+        <div class="pyq-card pyq-blue" onclick="toggle(this)">
+          <div class="pyq-q">
+            <div class="pyq-num">Q9</div>
+            <div class="pyq-q-text">
+              <div class="pyq-question">Test convergence of: Σ (n/(2n+1))ⁿ using Cauchy's Root Test</div>
+              <div class="pyq-tags">
+                <span class="tag tag-fire">🟡 Medium Priority</span>
+                <span class="tag tag-year">CT type question</span>
+                <span class="tag tag-marks">7 Marks</span>
+              </div>
+            </div>
+            <div class="pyq-toggle">▾</div>
+          </div>
+          <div class="pyq-solution">
+            <div class="sol-section">
+              <div class="sol-head">✏️ Step-by-Step</div>
+              <ul class="steps-list">
+                <li class="step-item">
+                  <div class="step-ball sb-blue">1</div>
+                  <div class="step-body">
+                    <strong>Identify uₙ: the entire term is raised to power n → Root Test</strong>
+                    <div class="math-env" style="margin-top:8px;">
+uₙ = (n/(2n+1))ⁿ
+                    </div>
+                  </div>
+                </li>
+                <li class="step-item">
+                  <div class="step-ball sb-blue">2</div>
+                  <div class="step-body">
+                    <strong>Take nth root of uₙ</strong>
+                    <div class="math-env" style="margin-top:8px;">
+(uₙ)^(1/n) = [(n/(2n+1))ⁿ]^(1/n) = n/(2n+1)
+
+This is the power of the Root Test — the n cancels perfectly!
+                    </div>
+                  </div>
+                </li>
+                <li class="step-item">
+                  <div class="step-ball sb-blue">3</div>
+                  <div class="step-body">
+                    <strong>Take limit</strong>
+                    <div class="math-env" style="margin-top:8px;">
+L = lim(n→∞) n/(2n+1) = lim(n→∞) 1/(2+1/n) = 1/2
+
+L = 1/2 &lt; 1  →  CONVERGES
+                    </div>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="answer-final">
+              <div class="af-label">✅ ANSWER</div>
+              <p>Series <strong>CONVERGES</strong> (L = 1/2 &lt; 1 by Root Test)</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ──────────── 2E: POWER SERIES & ROC ──────────── -->
+    <div id="power" class="concept-block">
+      <div class="concept-title">
+        <div class="ct-icon ct-gold">📡</div>
+        <div>
+          <h3>Power Series &amp; Radius of Convergence</h3>
+          <div class="ct-sub">Every CSVTU ESE has at least one ROC question — very scoring!</div>
+        </div>
+      </div>
+
+      <div class="explain-grid">
+        <div class="explain-box eb-toddler">
+          <div class="eb-head">🧒 The Radio Signal Analogy</div>
+          <p>A power series Σ aₙxⁿ is like a radio that works only within a certain distance R from the tower. Within R → signal is clear (convergent). Outside R → signal dies (divergent). At exactly distance R → could go either way (check separately). This "safe zone radius" R is called the <strong>Radius of Convergence</strong>.</p>
+        </div>
+        <div class="explain-box eb-formal">
+          <div class="eb-head">📖 The Interval of Convergence</div>
+          <p>For power series Σ aₙ(x-a)ⁿ:<br>
+          • <strong>Radius R</strong> = lim|aₙ/aₙ₊₁| (or 1/lim|aₙ|^(1/n))<br>
+          • Series converges for <strong>|x-a| &lt; R</strong><br>
+          • Series diverges for <strong>|x-a| &gt; R</strong><br>
+          • At |x-a| = R (the endpoints): TEST SEPARATELY using other tests!<br>
+          • <strong>Interval of convergence</strong>: (a−R, a+R) with endpoint checks</p>
+        </div>
+      </div>
+
+      <div class="formula-highlight">
+        <div class="fh-title">📡 Radius of Convergence Formulas</div>
+        Method 1 — Ratio Method (most common in exams):
+        R = lim(n→∞) |aₙ / aₙ₊₁|
+
+        Method 2 — Root Method (Cauchy-Hadamard):
+        R = 1 / lim(n→∞) |aₙ|^(1/n)
+
+        Special cases:
+        R = ∞  →  series converges for ALL x
+        R = 0  →  series converges ONLY at center x = a
+      </div>
+
+      <div class="pattern-box">
+        <div class="pb-head"><span>🎯</span> PATTERNS IN POWER SERIES QUESTIONS</div>
+        <div class="pattern-row">
+          <div class="pr-if">FORM 1</div>
+          <div class="pr-then">Σ aₙ·xⁿ where aₙ has no x → <em>Apply Ratio Test treating x as a constant. Solve for |x| &lt; R.</em></div>
+        </div>
+        <div class="pattern-row">
+          <div class="pr-if">FORM 2</div>
+          <div class="pr-then">Σ xⁿ/n² or Σ n·xⁿ → <em>uₙ = aₙ·xⁿ, form uₙ₊₁/uₙ, keep |x| factor, solve.</em></div>
+        </div>
+        <div class="pattern-row">
+          <div class="pr-if">FORM 3</div>
+          <div class="pr-then">"Find interval of convergence" → <em>Find R first, then check both endpoints x=±R using other tests.</em></div>
+        </div>
+      </div>
+
+      <div class="pyq-section">
+        <div class="pyq-label">📋 PYQ Questions — Power Series</div>
+
+        <div class="pyq-card pyq-gold" onclick="toggle(this)">
+          <div class="pyq-q">
+            <div class="pyq-num">Q10</div>
+            <div class="pyq-q-text">
+              <div class="pyq-question">Find the radius of convergence and interval of convergence of: Σ (n·xⁿ)/(2ⁿ)</div>
+              <div class="pyq-tags">
+                <span class="tag tag-fire">🔥 MUST DO</span>
+                <span class="tag tag-year">ESE type — 2021, 2023</span>
+                <span class="tag tag-marks">7 Marks</span>
+              </div>
+            </div>
+            <div class="pyq-toggle">▾</div>
+          </div>
+          <div class="pyq-solution">
+            <div class="sol-section">
+              <div class="sol-head">✏️ Step-by-Step — Full Method</div>
+              <ul class="steps-list">
+                <li class="step-item">
+                  <div class="step-ball sb-gold">1</div>
+                  <div class="step-body">
+                    <strong>Identify aₙ (the coefficient without x)</strong>
+                    <div class="math-env" style="margin-top:8px;">
+Series: Σ (n/2ⁿ) · xⁿ
+
+Here aₙ = n/2ⁿ  and  aₙ₊₁ = (n+1)/2^(n+1)
+                    </div>
+                  </div>
+                </li>
+                <li class="step-item">
+                  <div class="step-ball sb-gold">2</div>
+                  <div class="step-body">
+                    <strong>Compute R = lim|aₙ/aₙ₊₁|</strong>
+                    <div class="math-env" style="margin-top:8px;">
+R = lim(n→∞) |aₙ/aₙ₊₁|
+  = lim(n→∞) |(n/2ⁿ) / ((n+1)/2^(n+1))|
+  = lim(n→∞) |n · 2^(n+1) / (2ⁿ · (n+1))|
+  = lim(n→∞) |2n/(n+1)|
+  = 2 · lim(n→∞) n/(n+1)
+  = 2 × 1 = 2
+
+Radius of Convergence R = 2
+                    </div>
+                  </div>
+                </li>
+                <li class="step-item">
+                  <div class="step-ball sb-gold">3</div>
+                  <div class="step-body">
+                    <strong>State convergence region</strong>
+                    <div class="math-env" style="margin-top:8px;">
+Series converges for |x| < 2  →  -2 < x < 2
+Series diverges for |x| > 2
+                    </div>
+                  </div>
+                </li>
+                <li class="step-item">
+                  <div class="step-ball sb-gold">4</div>
+                  <div class="step-body">
+                    <strong>Check endpoints (x = 2 and x = -2)</strong>
+                    <div class="math-env" style="margin-top:8px;">
+At x = 2:  Σ n·2ⁿ/2ⁿ = Σ n  →  DIVERGES (→∞)
+
+At x = -2: Σ n·(-2)ⁿ/2ⁿ = Σ n·(-1)ⁿ  →  DIVERGES (terms don't→0)
+
+Both endpoints DIVERGE.
+                    </div>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="answer-final">
+              <div class="af-label">✅ FINAL ANSWER</div>
+              <p><strong>Radius of Convergence R = 2</strong><br>
+              <strong>Interval of Convergence: −2 &lt; x &lt; 2</strong> (open interval, both endpoints excluded)</p>
+            </div>
+            <div class="pro-tip">
+              <div class="pt-label">💡 ENDPOINT CHECK — What to do every time</div>
+              <p>After finding R:<br>
+              <strong>x = +R:</strong> Substitute x=R into original series, test with any standard test<br>
+              <strong>x = -R:</strong> Substitute x=-R, check for convergence/divergence<br>
+              Always state whether endpoints are included (closed bracket) or excluded (open bracket) in final answer!</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="pyq-card pyq-lav" onclick="toggle(this)">
+          <div class="pyq-q">
+            <div class="pyq-num">Q11</div>
+            <div class="pyq-q-text">
+              <div class="pyq-question">Find radius of convergence: Σ (x-2)ⁿ / (n·3ⁿ) — series about a ≠ 0</div>
+              <div class="pyq-tags">
+                <span class="tag tag-fire">🟡 High Priority</span>
+                <span class="tag tag-year">Slightly harder PYQ variant</span>
+                <span class="tag tag-marks">7 Marks</span>
+              </div>
+            </div>
+            <div class="pyq-toggle">▾</div>
+          </div>
+          <div class="pyq-solution">
+            <div class="sol-section">
+              <div class="sol-head">🧒 Note: This is centered at a=2, not 0!</div>
+              <p style="font-size:14px;color:var(--text2);">The series has (x-2)ⁿ instead of xⁿ. The method is identical — just treat (x-2) as a single unit. At the end, solve |x-2| &lt; R to find the interval centered at 2.</p>
+            </div>
+            <div class="sol-section">
+              <div class="sol-head">✏️ Solution</div>
+              <ul class="steps-list">
+                <li class="step-item">
+                  <div class="step-ball sb-lav">1</div>
+                  <div class="step-body">
+                    <strong>Identify aₙ = 1/(n·3ⁿ)</strong>
+                    <div class="math-env" style="margin-top:8px;">
+aₙ = 1/(n·3ⁿ),  aₙ₊₁ = 1/((n+1)·3^(n+1))
+                    </div>
+                  </div>
+                </li>
+                <li class="step-item">
+                  <div class="step-ball sb-lav">2</div>
+                  <div class="step-body">
+                    <strong>R = lim|aₙ/aₙ₊₁|</strong>
+                    <div class="math-env" style="margin-top:8px;">
+R = lim(n→∞) |[1/(n·3ⁿ)] / [1/((n+1)·3^(n+1))]|
+  = lim(n→∞) (n+1)·3^(n+1) / (n·3ⁿ)
+  = lim(n→∞) 3(n+1)/n
+  = 3
+
+R = 3
+                    </div>
+                  </div>
+                </li>
+                <li class="step-item">
+                  <div class="step-ball sb-lav">3</div>
+                  <div class="step-body">
+                    <strong>Interval: |x-2| &lt; 3 → -1 &lt; x &lt; 5</strong>
+                    <div class="math-env" style="margin-top:8px;">
+|x-2| < 3
+-3 < x-2 < 3
+-1 < x < 5   ← centered at 2, radius 3
+
+Check x=5: Σ 1/n → DIVERGES (harmonic series)
+Check x=-1: Σ (-1)ⁿ/n → CONVERGES (alternating series test)
+                    </div>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="answer-final">
+              <div class="af-label">✅ ANSWER</div>
+              <p><strong>R = 3</strong>, Interval of convergence: <strong>−1 ≤ x &lt; 5</strong> (left endpoint x=-1 included, right endpoint x=5 excluded)</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══════════ MASTER PATTERN GUIDE ═══════════ -->
+    <div id="patterns" style="margin-bottom:56px;">
+      <div class="concept-title">
+        <div class="ct-icon ct-gold">🎯</div>
+        <div>
+          <h3>Complete Pattern Recognition Guide</h3>
+          <div class="ct-sub">Read this before your exam — this is your cheat code</div>
+        </div>
+      </div>
+
+      <table class="test-table">
+        <thead>
+          <tr>
+            <th>You See This</th>
+            <th>Immediately Use This</th>
+            <th>Why</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>n! in the series</td>
+            <td>D'Alembert's Ratio Test — always</td>
+            <td>Factorial cancels perfectly in ratio (n+1)!/n! = n+1</td>
+          </tr>
+          <tr>
+            <td>aⁿ or rⁿ (exponential)</td>
+            <td>Ratio Test</td>
+            <td>Exponential cancels: a^(n+1)/aⁿ = a</td>
+          </tr>
+          <tr>
+            <td>Something raised to power n: (f(n))ⁿ</td>
+            <td>Cauchy's Root Test</td>
+            <td>nth root of (f(n))ⁿ = f(n), the power vanishes</td>
+          </tr>
+          <tr>
+            <td>Product series like 1·3·5.../2·4·6...</td>
+            <td>Ratio Test first (gives L=1), then Raabe's</td>
+            <td>These ALWAYS give L=1 in ratio test</td>
+          </tr>
+          <tr>
+            <td>Simple algebraic: n²/(n³+1)</td>
+            <td>Comparison Test with 1/n</td>
+            <td>For large n, n²/(n³+1) ≈ 1/n (dominant term)</td>
+          </tr>
+          <tr>
+            <td>xⁿ or (x-a)ⁿ in series</td>
+            <td>Radius of Convergence (Ratio method)</td>
+            <td>It's a power series — find R, then solve |x-a| &lt; R</td>
+          </tr>
+          <tr>
+            <td>"De Moivre" + trig identity</td>
+            <td>Expand (cosθ+isinθ)ⁿ by Binomial, compare real/imag parts</td>
+            <td>Real part → cos(nθ), Imaginary part → sin(nθ)</td>
+          </tr>
+          <tr>
+            <td>"All nth roots" of any number</td>
+            <td>Write in polar, apply De Moivre with 1/n, k=0..n-1</td>
+            <td>Master root formula always works</td>
+          </tr>
+          <tr>
+            <td>log(a+ib) or log of complex number</td>
+            <td>Direct formula: ½log(a²+b²) + i·tan⁻¹(b/a)</td>
+            <td>No derivation needed — memorize and apply</td>
+          </tr>
+          <tr>
+            <td>Sum cosine or sine series using C+iS</td>
+            <td>Add sister series, form GP in e^(iθ), sum it, separate parts</td>
+            <td>e^(iθ) + e^(2iθ) + ... is just a geometric series</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ═══════════ FORMULA SHEET ═══════════ -->
+    <div id="formulas">
+      <div class="concept-title">
+        <div class="ct-icon ct-lav">🧮</div>
+        <div>
+          <h3>Complete Formula Quick-Reference</h3>
+          <div class="ct-sub">Screenshot this or write it on your exam rough sheet first</div>
+        </div>
+      </div>
+
+      <div class="mega-formula">
+        <h4>⚡ Unit I — Complex Numbers: All Key Formulas</h4>
+        <div class="mf-grid">
+          <div class="mf-item">
+            <div class="mf-name">De Moivre's Theorem</div>
+            <div class="mf-val">(cosθ+isinθ)ⁿ = cos(nθ)+isin(nθ)
+(e^iθ)ⁿ = e^(inθ)</div>
+          </div>
+          <div class="mf-item">
+            <div class="mf-name">nth Roots — General Formula</div>
+            <div class="mf-val">z_k = r^(1/n)[cos((θ+2kπ)/n) + isin((θ+2kπ)/n)]
+k = 0, 1, 2, ..., n-1</div>
+          </div>
+          <div class="mf-item">
+            <div class="mf-name">Cube Roots of Unity</div>
+            <div class="mf-val">1, ω=(-1+i√3)/2, ω²=(-1-i√3)/2
+ω³=1, 1+ω+ω²=0, ωω²=1</div>
+          </div>
+          <div class="mf-item">
+            <div class="mf-name">Euler's Formula</div>
+            <div class="mf-val">e^(iθ) = cosθ + isinθ
+e^(-iθ) = cosθ - isinθ
+cosθ=(e^iθ+e^-iθ)/2
+sinθ=(e^iθ-e^-iθ)/(2i)</div>
+          </div>
+          <div class="mf-item">
+            <div class="mf-name">log(a+ib)</div>
+            <div class="mf-val">Real = ½log(a²+b²)
+Imag = tan⁻¹(b/a)</div>
+          </div>
+          <div class="mf-item">
+            <div class="mf-name">sin/cos of complex</div>
+            <div class="mf-val">sin(α+iβ)=sinα·coshβ + i·cosα·sinhβ
+cos(α+iβ)=cosα·coshβ - i·sinα·sinhβ</div>
+          </div>
+          <div class="mf-item">
+            <div class="mf-name">Hyperbolic Functions</div>
+            <div class="mf-val">sinh x=(eˣ-e⁻ˣ)/2, cosh x=(eˣ+e⁻ˣ)/2
+sin(ix)=i·sinhx, cos(ix)=coshx
+cosh²x-sinh²x=1</div>
+          </div>
+          <div class="mf-item">
+            <div class="mf-name">C+iS Key Result</div>
+            <div class="mf-val">cosθ+cos2θ+...+cosnθ
+= [sin(nθ/2)/sin(θ/2)]·cos[(n+1)θ/2]</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mega-formula" style="margin-top:20px;">
+        <h4>📈 Unit II — Series: All Key Formulas</h4>
+        <div class="mf-grid">
+          <div class="mf-item">
+            <div class="mf-name">D'Alembert's Ratio Test</div>
+            <div class="mf-val">L = lim|u(n+1)/uₙ|
+L&lt;1 → C, L&gt;1 → D, L=1 → Fails</div>
+          </div>
+          <div class="mf-item">
+            <div class="mf-name">Raabe's Test (when L=1)</div>
+            <div class="mf-val">R = lim n(1 - u(n+1)/uₙ)
+R&gt;1 → C, R&lt;1 → D, R=1 → Fails</div>
+          </div>
+          <div class="mf-item">
+            <div class="mf-name">Cauchy's Root Test</div>
+            <div class="mf-val">L = lim (uₙ)^(1/n)
+L&lt;1 → C, L&gt;1 → D, L=1 → Fails</div>
+          </div>
+          <div class="mf-item">
+            <div class="mf-name">Radius of Convergence</div>
+            <div class="mf-val">R = lim|aₙ/aₙ₊₁|  [ratio method]
+R = 1/lim|aₙ|^(1/n)  [root method]</div>
+          </div>
+          <div class="mf-item">
+            <div class="mf-name">Important Limits</div>
+            <div class="mf-val">lim(1+1/n)ⁿ = e  ★VERY IMPORTANT★
+lim n^(1/n) = 1
+lim (n!)^(1/n)/n = 1/e</div>
+          </div>
+          <div class="mf-item">
+            <div class="mf-name">Comparison Test</div>
+            <div class="mf-val">Σ1/nᵖ: p&gt;1 → C, p≤1 → D
+If uₙ ≤ vₙ and Σvₙ converges → Σuₙ converges</div>
+          </div>
+          <div class="mf-item">
+            <div class="mf-name">Alternating Series (Leibniz)</div>
+            <div class="mf-val">Σ(-1)ⁿuₙ converges if:
+1) uₙ is decreasing  AND
+2) lim uₙ = 0</div>
+          </div>
+          <div class="mf-item">
+            <div class="mf-name">Factorial Simplification</div>
+            <div class="mf-val">(n+1)!/n! = (n+1)
+(2n+2)!/(2n)! = (2n+1)(2n+2)
+Use these in Ratio Test!</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end content -->
+</div><!-- end main -->
+</div><!-- end layout -->
+
+<script>
+function toggle(card){card.classList.toggle('open');}
+
+// Highlight active sidebar item on scroll
+const sections=['polar','demoivre','roots','realimag','cis','what-series','ratio','raabe','root','power','formulas','patterns'];
+const navItems=document.querySelectorAll('.nav-item');
+
+window.addEventListener('scroll',()=>{
+  let current='';
+  sections.forEach(id=>{
+    const el=document.getElementById(id);
+    if(el&&el.getBoundingClientRect().top<200)current=id;
+  });
+  navItems.forEach(item=>{
+    item.classList.remove('active');
+    if(item.getAttribute('href')==='#'+current)item.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>
